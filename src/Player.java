@@ -15,8 +15,8 @@ public class Player {
     private String name;
     private int points;
     private int health;
-    private int length = 20;
-    private int height = 15;
+    public int length = 20;
+    public int height = 15;
     private char[][] board = new char[height][length];
     public char[][] hidden_board = new char[height][length];
     public char[][] temp_board = new char[height][length];
@@ -104,23 +104,52 @@ public class Player {
 
 
     public void guess() {
-        int x, y;
-        System.out.println("\nEnter a coordinate you think a creature might be");
+        System.out.println("\n\nEnter a coordinate you think a creature might be");
+
+        int x, y;   // declare variable to store coords
+        String tmp; // temporary variable for input
+
         System.out.print("x: ");
-        x = (scn.nextInt() - 1);    // -1 is to account for the array starting at 0
-        scn.nextLine();
+        tmp = scn.next();
+
+        x = inputConversion(tmp);
 
         System.out.print("y: ");
-        y = (scn.nextInt() - 1);    // -1 is to account for the array starting at 0
-        scn.nextLine();
+        tmp = scn.next();
 
-        if (hidden_board[x][y] != '#') {
+        y = inputConversion(tmp);
+
+        System.out.println("x, y: " + x + " " + y);
+        System.out.println(hidden_board[y][x]);
+
+        if (hidden_board[y][x] != '#') {
             System.out.println("Creature part found!");
             setBoard(x, y, hidden_board[x][y]);
             points += 5;
-        }
-        else
+        } else
             System.out.println("No luck!");
+    }
+
+    /**
+     * converts input from String to its
+     * equivalent index on the hidden board
+     *
+     * @param s input from the player
+     * @return the index for the hidden board
+     */
+    private int inputConversion(String s) {
+        // convert string to int in order to work with it
+        int c = s.toCharArray()[0];
+
+        int i = 0;
+        if (c >= 97 && c <= 116)    // for input of a lower case letter
+            i = (c - 97);   // because arr starts at 0
+        else if (c >= 65 && c <= 84)    // for input of an upper case letter
+            i = (c - 65);   // because arr starts at 0
+        else if (c >= 1 && c <= 20)   // for input of a number
+            i--;
+
+        return i;
     }
 
 
@@ -131,10 +160,25 @@ public class Player {
         System.out.println("\n" + getName());
         System.out.println("Points: " + getPoints());
         System.out.println("Health: " + getHealth());
+
+        // print board and row numbers
+        char letter = 97;
         for (int i = 0; i < height; i++) {
+            System.out.print(letter + " ");
+            letter++;
+
             for (int j = 0; j < length; j++)
                 System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
             System.out.println();
         }
+
+        // print footer
+        System.out.print("  ");
+        letter = 97;
+        for (int i = 0; i < length; i++) {
+            System.out.print(letter + " ");
+            letter++;
+        }
+
     }
 }

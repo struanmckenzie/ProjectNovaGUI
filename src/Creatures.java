@@ -1,3 +1,10 @@
+/**
+ * a class which is used to spawn creatures on a board
+ *
+ * @author Struan McKenzie
+ * @version 1.0
+ */
+
 public class Creatures {
 
     public void spawn(Player p) {
@@ -7,22 +14,30 @@ public class Creatures {
     }
 
     private void fish(Player p) {
-        int numParts = 2;   // number of parts which make up a fish perimeter
+        // fields of a fish
+        int len = 2;
+        int hei = 1;
+        int nParts = 2;
 
         boolean valid = false;
-        while (!valid) {    // loop until fish spawned in valid location
-            int lat = (int) (Math.random() * 15);   // math.random is exclusive
-            int lon = (int) (Math.random() * 19);
 
-            int validCount = 0;
+        // loop until fish spawned in valid location
+        while (!valid) {
+            // gen start of object, with limits to account for size of object
+            int row = (int) (Math.random() * (p.height - hei));
+            int col = (int) (Math.random() * (p.length - len));
 
-            for (int j = lon; j < 2; j++)
-                if (p.hidden_board[lat][j] == '#') {
-                    p.temp_board[lat][j] = 'F';
-                    validCount++;
+            len = col+2;    // convert to spaces on board
+
+            int cnt = 0;
+            for (int j = col; j < len; j++)
+                if (p.hidden_board[row][j] == '#') {
+                    p.temp_board[row][j] = 'F'; // saves layout to temp before valid to save time
+                    cnt++;
                 }
 
-            if (validCount == numParts) {
+            // test to make sure the lil fish can fit in the random space
+            if (cnt == nParts) {
                 p.setHidden_board(p.temp_board);
                 valid = true;
             }
@@ -30,24 +45,32 @@ public class Creatures {
     }
 
     private void crab(Player p) {
-        int numParts = 4;   // number of parts which make up a crab perimeter
+        // fields of a crab
+        int len = 2;
+        int hei = 2;
+        int nParts = 4;
 
         boolean valid = false;
-        while (!valid) {    // loop until fish spawned in valid location
-            int lat = (int) (Math.random() * 14);   // math.random is exclusive
-            int lon = (int) (Math.random() * 19);
 
-            int validCount = 0;
+        // loop until fish spawned in valid location
+        while (!valid) {
+            int row = (int) (Math.random() * (p.height - hei));
+            int col = (int) (Math.random() * (p.length - len));
+
+            // convert to spaces on board
+            len = col+2;
+            hei = row+2;
 
             // make sure there is space for a crab
-            for (int i = lat; i < 2; i++)
-                for (int j = lon; j < 2; j++)
+            int cnt = 0;
+            for (int i = row; i < len; i++)
+                for (int j = col; j < hei; j++)
                     if (p.hidden_board[i][j] == '#') {
                         p.temp_board[i][j] = 'C';
-                        validCount++;
+                        cnt++;
                     }
 
-            if (validCount == numParts) {
+            if (cnt == nParts) {
                 p.setHidden_board(p.temp_board);
                 valid = true;
             }

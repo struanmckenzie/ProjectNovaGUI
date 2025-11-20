@@ -1,3 +1,11 @@
+/**
+ * a class to run the game
+ * contains the main method
+ *
+ * @author Struan McKenzie
+ * @version 1.0
+ */
+
 import java.util.Scanner;
 
 public class Game {
