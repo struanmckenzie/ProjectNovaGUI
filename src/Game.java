@@ -19,7 +19,7 @@ public class Game {
 
         // start game
         Player[] plr = new Player[2];
-        Creatures c = new Creatures();
+        GameObjects c = new GameObjects();
         for (int i = 0; i < plr.length; i++) {
             plr[i] = new Player();
             System.out.print("Enter name of player " + (i+1) + ": ");
