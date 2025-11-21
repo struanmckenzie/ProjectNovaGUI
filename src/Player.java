@@ -3,7 +3,7 @@
  * contains methods of playing the game
  *
  * @author Struan McKenzie
- * @version 1.0
+ * @version 1.1
  */
 
 import java.util.Scanner;
@@ -33,9 +33,9 @@ public class Player {
 
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
-                board[i][j] = '#';
-                hidden_board[i][j] = '#';
-                temp_board[i][j] = '#';
+                board[i][j] = '~';
+                hidden_board[i][j] = '~';
+                temp_board[i][j] = '~';
             }
     }
 
@@ -95,12 +95,6 @@ public class Player {
             System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, board[0].length);
     }
 
-    /**
-     *
-     * @return the current hidden board layout
-     */
-    public char[][] getHidden_board() { return hidden_board; }
-
 
 
     public void guess() {
@@ -119,12 +113,14 @@ public class Player {
 
         y = inputConversion(tmp);
 
+        /*  TESTING PURPOSES ONLY
         System.out.println("x, y: " + x + " " + y);
         System.out.println(hidden_board[y][x]);
+         */
 
-        if (hidden_board[y][x] != '#') {
+        if (hidden_board[y][x] != '~') {
             System.out.println("Creature part found!");
-            setBoard(x, y, hidden_board[x][y]);
+            setBoard(y, x, hidden_board[y][x]);
             points += 5;
         } else
             System.out.println("No luck!");
@@ -168,7 +164,8 @@ public class Player {
             letter++;
 
             for (int j = 0; j < length; j++)
-                System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
+                //System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
+                System.out.print(board[i][j] + " ");
             System.out.println();
         }
 
