@@ -63,8 +63,8 @@ public class Player {
     public String getName() { return name; }
 
     /**
-     * sets value for points
-     * @param newPoints new points value
+     * sets players points
+     * @param newPoints new points
      */
     public void setPoints(int newPoints) { points = newPoints; }
 
@@ -95,58 +95,13 @@ public class Player {
             System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, board[0].length);
     }
 
-
-
-    public void guess() {
-        System.out.println("\n\nEnter a coordinate you think a creature might be");
-
-        int x, y;   // declare variable to store coords
-        String tmp; // temporary variable for input
-
-        System.out.print("x: ");
-        tmp = scn.next();
-
-        x = inputConversion(tmp);
-
-        System.out.print("y: ");
-        tmp = scn.next();
-
-        y = inputConversion(tmp);
-
-        /*  TESTING PURPOSES ONLY
-        System.out.println("x, y: " + x + " " + y);
-        System.out.println(hidden_board[y][x]);
-         */
-
-        if (hidden_board[y][x] != '~') {
-            System.out.println("Creature part found!");
-            setBoard(y, x, hidden_board[y][x]);
-            points += 5;
-        } else
-            System.out.println("No luck!");
-    }
-
     /**
-     * converts input from String to its
-     * equivalent index on the hidden board
-     *
-     * @param s input from the player
-     * @return the index for the hidden board
+     * gets hidden board
+     * @return hidden board
      */
-    private int inputConversion(String s) {
-        // convert string to int in order to work with it
-        int c = s.toCharArray()[0];
+    public char[][] getHidden_board() { return hidden_board; }
 
-        int i = 0;
-        if (c >= 97 && c <= 116)    // for input of a lower case letter
-            i = (c - 97);   // because arr starts at 0
-        else if (c >= 65 && c <= 84)    // for input of an upper case letter
-            i = (c - 65);   // because arr starts at 0
-        else if (c >= 1 && c <= 20)   // for input of a number
-            i--;
 
-        return i;
-    }
 
 
     /**
@@ -169,7 +124,7 @@ public class Player {
             System.out.println();
         }
 
-        // print footer
+        // print bottom axis
         System.out.print("  ");
         letter = 97;
         for (int i = 0; i < length; i++) {
