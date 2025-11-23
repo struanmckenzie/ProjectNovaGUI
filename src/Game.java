@@ -53,8 +53,10 @@ public class Game {
     }
 
     public void startNewGame() {
+        // initialise player array and create instance of GameObjects
         Player[] plr = new Player[2];
         GameObjects c = new GameObjects();
+
         for (int i = 0; i < plr.length; i++) {
             plr[i] = new Player();
             System.out.print("Enter name of player " + (i + 1) + ": ");
@@ -64,16 +66,19 @@ public class Game {
         // spawns game objects on each players board
         for (Player p : plr) c.spawn(p);
 
+        play(plr);
+    }
+
+    public void play(Player[] p) {
         boolean finished = false;
         int turn = 0; // player whose turn it is
         while (!finished) {
-            plr[turn].display();
-            guess(plr[turn]);
+            p[turn].display();
+            guess(p[turn]);
             promptForMenu();
 
             if (turn == 0) turn = 1;
             else turn = 0;
-
         }
     }
 
