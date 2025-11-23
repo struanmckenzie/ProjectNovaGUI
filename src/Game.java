@@ -9,7 +9,7 @@
 import java.util.Scanner;
 
 public class Game {
-    public Scanner scn = new Scanner(System.in);
+    private final Scanner scn = new Scanner(System.in);
 
     public static void main(String[] args) {
         Game g = new Game();
@@ -19,40 +19,65 @@ public class Game {
     /**
      * menu system for the game
      */
-    public void menu() {
+    private void menu() {
         System.out.println("\nMenu:");
         System.out.println("""
                 Start new game - 1
                 Load game ------ 2
                 View help ------ 3
-                Exit ----------- 4""");
-        int option = scn.nextInt();
-        scn.nextLine();
+                Quit ----------- 4""");
+        String option = scn.nextLine();
 
-        if (option == 1) {
-            System.out.println();
-            startNewGame();
-        } else if (option == 2) {
-            System.out.println();
-            loadGame();
-        } else if (option == 3) {
-            System.out.println();
-            help();
-        } else if (option == 4) {
-            System.out.println("""
-                    
-                    Press enter to stay
-                    or enter any other key to exit""");
-            String optn = scn.nextLine();
+        switch (option) {
+            case "1" -> {
+                System.out.println();
+                startNewGame();
+            }
+            case "2" -> {
+                System.out.println();
+                loadGame();
+            }
+            case "3" -> {
+                System.out.println();
+                help();
+            }
+            case "4" -> {
+                System.out.println("""
+                        
+                        Press enter to stay
+                        or enter q to quit""");
+                String opt = scn.nextLine();
 
-            if (!optn.isEmpty())
-                System.exit(0);
-            else
-                menu();
+                if (opt.equals("q") || opt.equals("Q"))
+                    System.exit(0);
+                else
+                    menu();
+            }
         }
     }
 
-    public void startNewGame() {
+    /**
+     * for actual gameplay
+     * @param p player array
+     */
+    private void play(Player[] p) {
+        boolean finished = false;
+        int turn = 0; // player whose turn it is
+        while (!finished) {
+            p[turn].display();
+            guess(p[turn]);
+            pauseMenu();
+
+            if (turn == 0) turn = 1;
+            else turn = 0;
+        }
+    }
+
+    /**
+     * start new game,
+     * initialises boards and players
+     */
+    private void startNewGame() {
         // initialise player array and create instance of GameObjects
         Player[] plr = new Player[2];
         GameObjects c = new GameObjects();
@@ -69,25 +94,13 @@ public class Game {
         play(plr);
     }
 
-    public void play(Player[] p) {
-        boolean finished = false;
-        int turn = 0; // player whose turn it is
-        while (!finished) {
-            p[turn].display();
-            guess(p[turn]);
-            promptForMenu();
-
-            if (turn == 0) turn = 1;
-            else turn = 0;
-        }
-    }
 
     /**
      * gets a players guess for where a creature might be
      *
      * @param p player
      */
-    public void guess(Player p) {
+    private void guess(Player p) {
         System.out.println("\n\nEnter a coordinate you think a creature might be");
 
         int x, y;   // declare variable to store coordinates
@@ -127,55 +140,75 @@ public class Game {
         return i;
     }
 
+    /**
+     * loads a previously saved game
+     */
     public void loadGame() {
         // load game
         System.out.println("look over reading from files");
         /* Files needed:
          1 for each board
          1 for each player's info*/
+
+        // needs to somehow return all the information
     }
 
+    /**
+     * prints a help/instructions page
+     */
     public void help() {
         // print help page
         System.out.println("Game help");
 
-        System.out.println("\nPress enter to go back to the menu");
+        System.out.println("\nPress enter to continue");
         scn.nextLine();
-        menu();
     }
 
-    public void promptForMenu() {
+    /**
+     * asks the player if they want to enter the pause menu
+     */
+    public void pauseMenu() {
+        scn.nextLine();
         System.out.println("""
                 
                 Press enter to continue
                 or enter any other key for pause menu""");
 
-        if (!scn.nextLine().isEmpty()) {
-            System.out.println("!!! PAUSE MENU UNDER CONSTRUCTION !!!");    // TEMPORARY
+        String s = scn.nextLine();
 
-            System.out.println("\n- - - PAUSED - - -");
+        if (!s.isEmpty()) {
+            System.out.println("\n- - - - PAUSED - - - -");
             System.out.println("""
-                    Save game ------ 1
-                    View help ------ 2
-                    Main menu ------ 3""");
-            int option = scn.nextInt();
-            scn.nextLine();
+                    Save & quit ---------- 1
+                    View help ------------ 2
+                    Quit without saving -- 3
+                    Continue --- press enter""");
+            String option = scn.nextLine();
 
-            if (option == 1) {
-                System.out.println();
-                saveGame();
-            } else if (option == 2) {
-                System.out.println();
-                help();
-            } else if (option == 3) {
-                System.out.println();
-                menu();
+            if (!option.isEmpty()) {
+                switch (option) {
+                    case "1" -> {
+                        System.out.println();
+                        saveQuit();
+                    }
+                    case "2" -> {
+                        System.out.println();
+                        help();
+                    }
+                    case "3" -> {
+                        System.out.println();
+                        menu();
+                    }
+                }
             }
         }
         // game continues
     }
 
-    public void saveGame() {
+    /**
+     * saves the current game to files on disk
+     */
+    public void saveQuit() {
         System.out.println("look over printing to files");
     }
 }
