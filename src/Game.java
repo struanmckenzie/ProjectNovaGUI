@@ -11,7 +11,41 @@ import java.util.Scanner;
 public class Game {
     public static void main(String[] args) {
         Game g =  new Game();
-        Menu.menu(g);
+        g.menu(g);
+    }
+
+    public void menu(Game g) {
+        Scanner scn = new Scanner(System.in);
+        System.out.println("\nMenu:");
+        System.out.println("""
+                Start new game - 1
+                Load game ------ 2
+                View help ------ 3
+                Exit ----------- 4""");
+        int option = scn.nextInt();
+        scn.nextLine();
+
+        if (option == 1) {
+            System.out.println();
+            g.startGame(g);
+        } else if (option == 2) {
+            System.out.println();
+            g.loadGame();
+        } else if (option == 3) {
+            System.out.println();
+            g.help(g);
+        } else {
+            System.out.println("""
+                
+                    Press enter to stay
+                    or enter any other key to exit""");
+            String optn = scn.nextLine();
+
+            if (optn.equals("1"))
+                System.exit(0);
+            else
+                menu(g);
+        }
     }
 
     public void startGame(Game g) {
@@ -107,7 +141,7 @@ public class Game {
         Scanner scn = new Scanner(System.in);
         System.out.println("\nPress enter to go back to the menu");
         scn.nextLine();
-        Menu.menu(g);
+        g.menu(g);
     }
 
     public void promptForMenu(Game g) {
