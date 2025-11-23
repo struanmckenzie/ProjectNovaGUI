@@ -9,13 +9,17 @@
 import java.util.Scanner;
 
 public class Game {
+    public Scanner scn = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Game g =  new Game();
-        g.menu(g);
+        Game g = new Game();
+        g.menu();
     }
 
-    public void menu(Game g) {
-        Scanner scn = new Scanner(System.in);
+    /**
+     * menu system for the game
+     */
+    public void menu() {
         System.out.println("\nMenu:");
         System.out.println("""
                 Start new game - 1
@@ -27,36 +31,33 @@ public class Game {
 
         if (option == 1) {
             System.out.println();
-            g.startGame(g);
+            startNewGame();
         } else if (option == 2) {
             System.out.println();
-            g.loadGame();
+            loadGame();
         } else if (option == 3) {
             System.out.println();
-            g.help(g);
-        } else {
+            help();
+        } else if (option == 4) {
             System.out.println("""
-                
+                    
                     Press enter to stay
                     or enter any other key to exit""");
             String optn = scn.nextLine();
 
-            if (optn.equals("1"))
+            if (!optn.isEmpty())
                 System.exit(0);
             else
-                menu(g);
+                menu();
         }
     }
 
-    public void startGame(Game g) {
-        Scanner scn = new Scanner(System.in);
-
-        // start game
+    public void startNewGame() {
         Player[] plr = new Player[2];
         GameObjects c = new GameObjects();
         for (int i = 0; i < plr.length; i++) {
             plr[i] = new Player();
-            System.out.print("Enter name of player " + (i+1) + ": ");
+            System.out.print("Enter name of player " + (i + 1) + ": ");
             plr[i].setName(scn.nextLine());
         }
 
@@ -68,7 +69,7 @@ public class Game {
         while (!finished) {
             plr[turn].display();
             guess(plr[turn]);
-            promptForMenu(g);
+            promptForMenu();
 
             if (turn == 0) turn = 1;
             else turn = 0;
@@ -76,34 +77,24 @@ public class Game {
         }
     }
 
+    /**
+     * gets a players guess for where a creature might be
+     *
+     * @param p player
+     */
     public void guess(Player p) {
-        Scanner scn = new Scanner(System.in);
         System.out.println("\n\nEnter a coordinate you think a creature might be");
 
-        int x, y;   // declare variable to store coords
-        String tmp; // temporary variable for input
-
-        System.out.print("x: ");
-        tmp = scn.next();
-
-        x = inputConversion(tmp);
-
-        System.out.print("y: ");
-        tmp = scn.next();
-
-        y = inputConversion(tmp);
-
-        /*  TESTING PURPOSES ONLY
-        System.out.println("x, y: " + x + " " + y);
-        System.out.println(hidden_board[y][x]);
-         */
+        int x, y;   // declare variable to store coordinates
+        x = getCoordinate("x: ");
+        y = getCoordinate("y: ");
 
         if (p.getHidden_board()[y][x] != '~') {
             System.out.println("Creature part found!");
             p.setBoard(y, x, p.getHidden_board()[y][x]);
             p.setPoints(p.getPoints() + 5);
         } else {
-            p.setBoard(y,x,'X');
+            p.setBoard(y, x, 'X');
             System.out.println("No luck!");
         }
     }
@@ -112,49 +103,74 @@ public class Game {
      * converts input from String to its
      * equivalent index on the hidden board
      *
-     * @param s input from the player
+     * @param toPrint what the player should be prompted
      * @return the index for the hidden board
      */
-    private int inputConversion(String s) {
-        // convert string to int in order to work with it
-        int c = s.toCharArray()[0];
+    private int getCoordinate(String toPrint) {
+        int i = -1;
+        while (i == -1) {
+            System.out.print(toPrint);
+            int c = scn.next().toCharArray()[0]; // convert string to int
 
-        int i = 0;
-        if (c >= 97 && c <= 116)    // for input of a lower case letter
-            i = (c - 97);   // because arr starts at 0
-        else if (c >= 65 && c <= 84)    // for input of an upper case letter
-            i = (c - 65);   // because arr starts at 0
-
+            if (c >= 97 && c <= 116)    // for input of a lower case letter
+                i = (c - 97);
+            else if (c >= 65 && c <= 84)    // for input of an upper case letter
+                i = (c - 65);
+            else
+                System.out.println("Invalid input, please try again");
+        }
         return i;
     }
 
     public void loadGame() {
         // load game
-        System.out.println("Loading game");
+        System.out.println("look over reading from files");
+        /* Files needed:
+         1 for each board
+         1 for each player's info*/
     }
 
-    public void help(Game g) {
+    public void help() {
         // print help page
         System.out.println("Game help");
 
-
-        Scanner scn = new Scanner(System.in);
         System.out.println("\nPress enter to go back to the menu");
         scn.nextLine();
-        g.menu(g);
+        menu();
     }
 
-    public void promptForMenu(Game g) {
-        Scanner scn = new Scanner(System.in);
+    public void promptForMenu() {
         System.out.println("""
                 
                 Press enter to continue
-                or any other key to enter pause menu""");
+                or enter any other key for pause menu""");
 
         if (!scn.nextLine().isEmpty()) {
-            System.out.println("!!! PAUSE MENU UNDER CONSTRUCTION !!!");
-        }
+            System.out.println("!!! PAUSE MENU UNDER CONSTRUCTION !!!");    // TEMPORARY
 
+            System.out.println("\n- - - PAUSED - - -");
+            System.out.println("""
+                    Save game ------ 1
+                    View help ------ 2
+                    Main menu ------ 3""");
+            int option = scn.nextInt();
+            scn.nextLine();
+
+            if (option == 1) {
+                System.out.println();
+                saveGame();
+            } else if (option == 2) {
+                System.out.println();
+                help();
+            } else if (option == 3) {
+                System.out.println();
+                menu();
+            }
+        }
         // game continues
+    }
+
+    public void saveGame() {
+        System.out.println("look over printing to files");
     }
 }

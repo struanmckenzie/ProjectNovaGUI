@@ -9,14 +9,12 @@
 import java.util.Scanner;
 
 public class Player {
-    Scanner scn = new Scanner(System.in);
-
     // FIELDS
     private String name;
     private int points;
     private int health;
-    public int length = 20;
-    public int height = 15;
+    public final int length = 20;
+    public final int height = 15;
     private char[][] board = new char[height][length];
     public char[][] hidden_board = new char[height][length];
     public char[][] temp_board = new char[height][length];
@@ -92,7 +90,7 @@ public class Player {
      */
     public void setHidden_board(char[][] newHBoard) {
         for (int i = 0; i < (height); i++)
-            System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, board[0].length);
+            System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, length);
     }
 
     /**
@@ -100,6 +98,21 @@ public class Player {
      * @return hidden board
      */
     public char[][] getHidden_board() { return hidden_board; }
+
+    /**
+     * sets new temporary board layout
+     * @param newTBoard new hidden board
+     */
+    public void setTemp_board(char[][] newTBoard) {
+        for (int i = 0; i < (height); i++)
+            System.arraycopy(newTBoard[i], 0, temp_board[i], 0, newTBoard[0].length);
+    }
+
+    /**
+     * gets temporary board
+     * @return temporary board
+     */
+    public char[][] getTemp_board() { return temp_board; }
 
 
 
@@ -118,9 +131,11 @@ public class Player {
             System.out.print(letter + " ");
             letter++;
 
-            for (int j = 0; j < length; j++)
+            for (int j = 0; j < length; j++) {
                 //System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
-                System.out.print(board[i][j] + " ");
+                //System.out.print(board[i][j] + " ");
+                System.out.println(j);
+            }
             System.out.println();
         }
 
