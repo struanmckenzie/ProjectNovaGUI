@@ -147,11 +147,22 @@ public class Game {
      * loads a previously saved game
      */
     public void loadGame() {
-        // load game
-        System.out.println("look over reading from files");
-        /* Files needed:
-         1 for each board
-         1 for each player's info*/
+        // initialise player array and create instance of GameObjects
+        Player[] plr = new Player[2];
+        GameObjects c = new GameObjects();
+
+        for (int i = 0; i < plr.length; i++)
+            plr[i] = new Player();
+
+        System.out.println("Please enter the name of the save: ");
+        String saveName = ("save/" + scn.nextLine());
+
+        for (int player = 0; player < 2; player++) {
+            // names to save files under
+            String loadBoard = (saveName + "_" + player + "_Board.txt");
+            String loadHBoard = (saveName + "_" + player + "_HBoard.txt");
+            String loadDetails = (saveName + "_" + player + "_Details.txt");
+        }
 
         // needs to somehow return all the information
     }
