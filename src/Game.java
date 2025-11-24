@@ -6,9 +6,7 @@
  * @version 1.0
  */
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Scanner;
 
 public class Game {
@@ -158,13 +156,69 @@ public class Game {
         String saveName = ("save/" + scn.nextLine());
 
         for (int player = 0; player < 2; player++) {
-            // names to save files under
+            // set up names to save files under
             String loadBoard = (saveName + "_" + player + "_Board.txt");
             String loadHBoard = (saveName + "_" + player + "_HBoard.txt");
             String loadDetails = (saveName + "_" + player + "_Details.txt");
+
+            FileReader fr;
+            BufferedReader br;
+
+            try {
+                // load board
+                fr = new FileReader(loadBoard);
+                br = new BufferedReader(fr);
+
+                // effectively making a for loop of while loops coz buffered reader is a pain in the ***
+                int i = 0;
+                int j = 0;
+
+                String nextLine = br.readLine();
+                while (i < 15 && nextLine != null) {
+                    while (j < 20 && nextLine != null) {
+                        plr[player].setBoard(i, j, nextLine.toCharArray()[0]);
+                        nextLine = br.readLine();
+                        j++;
+                    }
+                    i++;
+                }
+                br.close();
+
+                // load hidden board
+                fr = new FileReader(loadHBoard);
+                br = new BufferedReader(fr);
+
+                nextLine = br.readLine();
+                while (i < 15 && nextLine != null) {
+                    while (j < 20 && nextLine != null) {
+                        plr[player].setHidden_board(i, j, nextLine.toCharArray()[0]);
+                        nextLine = br.readLine();
+                        j++;
+                    }
+                    i++;
+                }
+                br.close();
+
+                // load other details
+                fr = new FileReader(loadDetails);
+                br = new BufferedReader(fr);
+
+                plr[player].setName(br.readLine());
+                plr[player].setPoints(Integer.parseInt(br.readLine()));
+                plr[player].setHealth(Integer.parseInt(br.readLine()));
+
+                nextLine = br.readLine();
+                if (nextLine != null) {
+                    String start = br.readLine();
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        // needs to somehow return all the information
+        // play game
+        play(plr);
     }
 
     /**
@@ -242,9 +296,8 @@ public class Game {
 
                 for (int i = 0; i < p[player].height; i++) {
                     for (int j = 0; j < p[player].length; j++) {
-                        pw.print(p[player].getBoard()[i][j] + ",");
+                        pw.println(p[player].getBoard()[i][j]);
                     }
-                    pw.println();
                 }
                 pw.close();
 
@@ -256,7 +309,6 @@ public class Game {
                     for (int j = 0; j < p[player].length; j++) {
                         pw.print(p[player].getHidden_board()[i][j] + ",");
                     }
-                    pw.println();
                 }
                 pw.close();
 
@@ -274,6 +326,8 @@ public class Game {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
+
+
         }
 
         System.out.println("""

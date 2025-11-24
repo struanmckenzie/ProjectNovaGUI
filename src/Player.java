@@ -97,6 +97,10 @@ public class Player {
             System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, length);
     }
 
+    public void setHidden_board(int y, int x, char c) {
+        hidden_board[y][x] = c;
+    }
+
     /**
      * gets hidden board
      * @return hidden board
