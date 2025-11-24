@@ -35,7 +35,7 @@ public class GameObjects {
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
-                System.arraycopy(p.hidden_board[i], 0, p.temp_board[i], 0, p.length);
+                System.arraycopy(p.getHidden_board()[i], 0, p.getTemp_board()[i], 0, p.length);
 
             // gen start of object, with limits to account for size of object
             int startRow = (int) (Math.random() * (p.height - hei));
@@ -45,14 +45,14 @@ public class GameObjects {
 
             int count = 0;
             for (int x = startCol; x < endCol; x++)
-                if (p.hidden_board[startRow][x] == '~') {
-                    p.temp_board[startRow][x] = 'F'; // saves layout to temp before valid to save time
+                if (p.getHidden_board()[startRow][x] == '~') {
+                    p.getTemp_board()[startRow][x] = 'F'; // saves layout to temp before valid to save time
                     count++;
                 }
 
             // test to make sure the lil fish can fit in the random space
             if (count == area) {
-                p.setHidden_board(p.temp_board);
+                p.setHidden_board(p.getTemp_board());
                 valid = true;
             }
         }
@@ -70,7 +70,7 @@ public class GameObjects {
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
-                System.arraycopy(p.hidden_board[i], 0, p.temp_board[i], 0, p.length);
+                System.arraycopy(p.getHidden_board()[i], 0, p.getTemp_board()[i], 0, p.length);
 
             int startRow = (int) (Math.random() * (p.height - hei));
             int startCol = (int) (Math.random() * (p.length - len));
@@ -83,13 +83,13 @@ public class GameObjects {
             int count = 0;
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++)
-                    if (p.hidden_board[y][x] == '~') {
-                        p.temp_board[y][x] = 'C';
+                    if (p.getHidden_board()[y][x] == '~') {
+                        p.getTemp_board()[y][x] = 'C';
                         count++;
                     }
 
             if (count == area) {
-                p.setHidden_board(p.temp_board);
+                p.setHidden_board(p.getTemp_board());
                 valid = true;
             }
         }
@@ -105,7 +105,7 @@ public class GameObjects {
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
-                System.arraycopy(p.hidden_board[i], 0, p.temp_board[i], 0, p.length);
+                System.arraycopy(p.getHidden_board()[i], 0, p.getTemp_board()[i], 0, p.length);
 
             int startRow = (int) (Math.random() * (p.height - hei));
             int startCol = (int) (Math.random() * (p.length - len));
@@ -118,13 +118,13 @@ public class GameObjects {
             int count = 0;
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++)
-                    if (p.hidden_board[y][x] == '~') {
-                        p.temp_board[y][x] = 'S';
+                    if (p.getHidden_board()[y][x] == '~') {
+                        p.getTemp_board()[y][x] = 'S';
                         count++;
                     }
 
             if (count == area) {
-                p.setHidden_board(p.temp_board);
+                p.setHidden_board(p.getTemp_board());
                 valid = true;
             }
         }

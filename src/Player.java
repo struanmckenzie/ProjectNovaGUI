@@ -6,8 +6,6 @@
  * @version 1.1
  */
 
-import java.util.Scanner;
-
 public class Player {
     // FIELDS
     private String name;
@@ -16,8 +14,8 @@ public class Player {
     public final int length = 20;
     public final int height = 15;
     private char[][] board = new char[height][length];
-    public char[][] hidden_board = new char[height][length];
-    public char[][] temp_board = new char[height][length];
+    private char[][] hidden_board = new char[height][length];
+    private char[][] temp_board = new char[height][length];
 
     // CONSTRUCTOR
 
