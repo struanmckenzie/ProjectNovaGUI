@@ -6,6 +6,9 @@
  * @version 1.0
  */
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Game {
@@ -66,7 +69,7 @@ public class Game {
         while (!finished) {
             p[turn].display();
             guess(p[turn]);
-            pauseMenu();
+            pauseMenu(p,turn);
 
             if (turn == 0) turn = 1;
             else turn = 0;
@@ -167,7 +170,7 @@ public class Game {
     /**
      * asks the player if they want to enter the pause menu
      */
-    public void pauseMenu() {
+    public void pauseMenu(Player[] p, int turn) {
         scn.nextLine();
         System.out.println("""
                 
@@ -179,7 +182,7 @@ public class Game {
         if (!s.isEmpty()) {
             System.out.println("\n- - - - PAUSED - - - -");
             System.out.println("""
-                    Save & quit ---------- 1
+                    Save ----------------- 1
                     View help ------------ 2
                     Quit without saving -- 3
                     Continue --- press enter""");
@@ -189,7 +192,7 @@ public class Game {
                 switch (option) {
                     case "1" -> {
                         System.out.println();
-                        saveQuit();
+                        save(p, turn);
                     }
                     case "2" -> {
                         System.out.println();
@@ -208,7 +211,70 @@ public class Game {
     /**
      * saves the current game to files on disk
      */
-    public void saveQuit() {
-        System.out.println("look over printing to files");
+    public void save(Player[] p, int turn) {
+        System.out.println("Please enter a name for this save: ");
+        String saveName = ("save/" + scn.nextLine());
+
+        for (int player = 0; player < p.length; player++) {
+            // names to save files under
+            String saveBoard = (saveName + "_" + player + "_Board.txt");
+            String saveHBoard = (saveName + "_" + player + "_HBoard.txt");
+            String saveDetails = (saveName + "_" + player + "_Details.txt");
+
+            FileOutputStream outStream;
+            PrintWriter pw;
+
+            try {
+                // save board
+                outStream = new FileOutputStream(saveBoard);
+                pw = new PrintWriter(outStream);
+
+                for (int i = 0; i < p[player].height; i++) {
+                    for (int j = 0; j < p[player].length; j++) {
+                        pw.print(p[player].getBoard()[i][j] + ",");
+                    }
+                    pw.println();
+                }
+                pw.close();
+
+                // save hidden board
+                outStream = new FileOutputStream(saveHBoard);
+                pw = new PrintWriter(outStream);
+
+                for (int i = 0; i < p[player].height; i++) {
+                    for (int j = 0; j < p[player].length; j++) {
+                        pw.print(p[player].getHidden_board()[i][j] + ",");
+                    }
+                    pw.println();
+                }
+                pw.close();
+
+                // save other details
+                outStream = new FileOutputStream(saveDetails);
+                pw = new PrintWriter(outStream);
+
+                pw.println(p[player].getName() + "\n" + p[player].getPoints() + "\n" + p[player].getHealth());
+
+                // mark the player who should start
+                if (player != turn)
+                    pw.println("start");
+                pw.close();
+
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        System.out.println("""
+            
+            Press enter to continue
+            or enter any other key for main menu""");
+
+        String s = scn.nextLine();
+
+        if (!s.isEmpty()) {
+            menu();
+        }
+
     }
 }

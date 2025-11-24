@@ -49,6 +49,12 @@ public class Player {
     }
 
     /**
+     * gets board
+     * @return current board state
+     */
+    public char[][] getBoard() { return board; }
+
+    /**
      * set players name
      * @param newName is the name for the player
      */
