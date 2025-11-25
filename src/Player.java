@@ -11,8 +11,8 @@ public class Player {
     private String name;
     private int points;
     private int health;
-    public final int length = 20;
-    public final int height = 15;
+    public final int length = 13;
+    public final int height = 13;
     private char[][] board = new char[height][length];
     private char[][] hidden_board = new char[height][length];
     private char[][] temp_board = new char[height][length];

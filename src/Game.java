@@ -54,6 +54,7 @@ public class Game {
                 else
                     menu();
             }
+            default -> menu();
         }
     }
 
@@ -105,13 +106,15 @@ public class Game {
         System.out.println("\n\nEnter a coordinate you think a creature might be");
 
         int x, y;   // declare variable to store coordinates
-        x = getCoordinate("x: ");
-        y = getCoordinate("y: ");
+        x = getCoordinate("x: ", p.length);
+        y = getCoordinate("y: ", p.height);
 
         if (p.getHidden_board()[y][x] != '~') {
             System.out.println("Creature part found!");
             p.setBoard(y, x, p.getHidden_board()[y][x]);
             p.setPoints(p.getPoints() + 5);
+
+            // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE?????????????????????????????????
         } else {
             p.setBoard(y, x, 'X');
             System.out.println("No luck!");
@@ -125,18 +128,16 @@ public class Game {
      * @param toPrint what the player should be prompted
      * @return the index for the hidden board
      */
-    private int getCoordinate(String toPrint) {
+    private int getCoordinate(String toPrint, int lim) {
         int i = -1;
         while (i == -1) {
             System.out.print(toPrint);
             int c = scn.next().toCharArray()[0]; // convert string to int
 
-            if (c >= 97 && c <= 116)    // for input of a lower case letter
+            if (c >= 97 && c <= (lim+97))    // for input of a lower case letter, i attempted validation but gave up
                 i = (c - 97);
-            else if (c >= 65 && c <= 84)    // for input of an upper case letter
+            else if (c >= 65 && c <= (lim+65))    // for input of an upper case letter
                 i = (c - 65);
-            else
-                System.out.println("Invalid input, please try again");
         }
         return i;
     }
@@ -145,9 +146,8 @@ public class Game {
      * loads a previously saved game
      */
     public void loadGame() {
-        // initialise player array and create instance of GameObjects
+        // initialise player array
         Player[] plr = new Player[2];
-        GameObjects c = new GameObjects();
 
         for (int i = 0; i < plr.length; i++)
             plr[i] = new Player();
@@ -155,11 +155,13 @@ public class Game {
         System.out.println("Please enter the name of the save: ");
         String saveName = ("save/" + scn.nextLine());
 
+        int startingPlayer = 0;
+
         for (int player = 0; player < 2; player++) {
             // set up names to save files under
-            String loadBoard = (saveName + "_" + player + "_Board.txt");
-            String loadHBoard = (saveName + "_" + player + "_HBoard.txt");
-            String loadDetails = (saveName + "_" + player + "_Details.txt");
+            String loadBoard = (saveName + "_" + player + "_Board.csv");
+            String loadHBoard = (saveName + "_" + player + "_HBoard.csv");
+            String loadDetails = (saveName + "_" + player + "_Details.csv");
 
             FileReader fr;
             BufferedReader br;
@@ -169,17 +171,14 @@ public class Game {
                 fr = new FileReader(loadBoard);
                 br = new BufferedReader(fr);
 
-                // effectively making a for loop of while loops coz buffered reader is a pain in the ***
-                int i = 0;
-                int j = 0;
-
+                // effectively making a for loop from a while loop coz buffered reader
                 String nextLine = br.readLine();
+                int i = 0;
                 while (i < 15 && nextLine != null) {
-                    while (j < 20 && nextLine != null) {
-                        plr[player].setBoard(i, j, nextLine.toCharArray()[0]);
-                        nextLine = br.readLine();
-                        j++;
+                    for (int j = 0; j < 20; j++) {
+                        plr[player].setBoard(i, j, nextLine.toCharArray()[j]);
                     }
+                    nextLine = br.readLine();
                     i++;
                 }
                 br.close();
@@ -189,12 +188,12 @@ public class Game {
                 br = new BufferedReader(fr);
 
                 nextLine = br.readLine();
+                i = 0;
                 while (i < 15 && nextLine != null) {
-                    while (j < 20 && nextLine != null) {
-                        plr[player].setHidden_board(i, j, nextLine.toCharArray()[0]);
-                        nextLine = br.readLine();
-                        j++;
+                    for (int j = 0; j < 20; j++) {
+                        plr[player].setHidden_board(i, j, nextLine.toCharArray()[j]);
                     }
+                    nextLine = br.readLine();
                     i++;
                 }
                 br.close();
@@ -209,12 +208,19 @@ public class Game {
 
                 nextLine = br.readLine();
                 if (nextLine != null) {
-                    String start = br.readLine();
+                    startingPlayer = Integer.parseInt(nextLine);
                 }
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        // make sure the correct player starts first
+        if (startingPlayer != 0) {
+            Player tmp = plr[0];
+            plr[0] = plr[1];
+            plr[1] = tmp;
         }
 
         // play game
@@ -226,10 +232,15 @@ public class Game {
      */
     public void help() {
         // print help page
-        System.out.println("Game help");
+        System.out.println("""
+                Help page:
+                The aim of the game is to find all the creatures before your opponent.
+                If the game ends early the player with the most points wins
+                
+                Press enter to continue""");
 
-        System.out.println("\nPress enter to continue");
         scn.nextLine();
+        menu();
     }
 
     /**
@@ -237,6 +248,7 @@ public class Game {
      */
     public void pauseMenu(Player[] p, int turn) {
         scn.nextLine();
+
         System.out.println("""
                 
                 Press enter to continue
@@ -246,10 +258,17 @@ public class Game {
 
         if (!s.isEmpty()) {
             System.out.println("\n- - - - PAUSED - - - -");
+            String winner = p[0].getName();
+            if (p[1].getPoints() > p[0].getPoints())
+                winner = p[1].getName();
+            else if (p[0].getPoints() == p[1].getPoints())
+                winner = "Tied";
+
+            System.out.print("Current winner is: " + winner);
             System.out.println("""
+                    
                     Save ----------------- 1
-                    View help ------------ 2
-                    Quit without saving -- 3
+                    Quit to menu --------- 2
                     Continue --- press enter""");
             String option = scn.nextLine();
 
@@ -260,10 +279,6 @@ public class Game {
                         save(p, turn);
                     }
                     case "2" -> {
-                        System.out.println();
-                        help();
-                    }
-                    case "3" -> {
                         System.out.println();
                         menu();
                     }
@@ -282,9 +297,9 @@ public class Game {
 
         for (int player = 0; player < p.length; player++) {
             // names to save files under
-            String saveBoard = (saveName + "_" + player + "_Board.txt");
-            String saveHBoard = (saveName + "_" + player + "_HBoard.txt");
-            String saveDetails = (saveName + "_" + player + "_Details.txt");
+            String saveBoard = (saveName + "_" + player + "_Board.csv");
+            String saveHBoard = (saveName + "_" + player + "_HBoard.csv");
+            String saveDetails = (saveName + "_" + player + "_Details.csv");
 
             FileOutputStream outStream;
             PrintWriter pw;
@@ -296,8 +311,9 @@ public class Game {
 
                 for (int i = 0; i < p[player].height; i++) {
                     for (int j = 0; j < p[player].length; j++) {
-                        pw.println(p[player].getBoard()[i][j]);
+                        pw.print(p[player].getBoard()[i][j]);
                     }
+                    pw.println();
                 }
                 pw.close();
 
@@ -307,8 +323,9 @@ public class Game {
 
                 for (int i = 0; i < p[player].height; i++) {
                     for (int j = 0; j < p[player].length; j++) {
-                        pw.print(p[player].getHidden_board()[i][j] + ",");
+                        pw.print(p[player].getHidden_board()[i][j]);
                     }
+                    pw.println();
                 }
                 pw.close();
 
@@ -320,7 +337,7 @@ public class Game {
 
                 // mark the player who should start
                 if (player != turn)
-                    pw.println("start");
+                    pw.println(player);
                 pw.close();
 
             } catch (FileNotFoundException e) {
