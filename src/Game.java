@@ -3,7 +3,7 @@
  * contains the main method
  *
  * @author Struan McKenzie
- * @version 1.0
+ * @version 2.4
  */
 
 import java.io.*;
@@ -68,6 +68,7 @@ public class Game {
         while (!finished) {
             p[turn].display();
             guess(p[turn]);
+            checkBoard(p[turn]);
             pauseMenu(p,turn);
 
             if (turn == 0) turn = 1;
@@ -343,8 +344,6 @@ public class Game {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
-
-
         }
 
         System.out.println("""
@@ -358,5 +357,33 @@ public class Game {
             menu();
         }
 
+    }
+
+    public void checkBoard(Player p) {
+        int hiddenCount = 0;  // number of creature parts in hidden board
+        int visableCount = 0;  // number of creature parts in visable board
+
+        for (int i = 0; i < p.height; i++) {
+            for (int j = 0; j < p.length; j++) {
+                if (p.getHidden_board()[i][j] != '~')   // edit this if more things are added to board
+                    hiddenCount++;
+            }
+        }
+
+        for (int i = 0; i < p.height; i++) {
+            for (int j = 0; j < p.length; j++) {
+                if (p.getBoard()[i][j] != '~' && p.getBoard()[i][j] != 'X') // edit this if more things are added to board
+                    visableCount++;
+            }
+        }
+
+        // check to see if all the creatures have been found
+        if (hiddenCount == visableCount) {
+            System.out.println("\n" + p.getName() + " is the winner!");
+            System.out.println("\nPress enter to exit");
+            scn.nextLine();
+            scn.nextLine();
+            System.exit(0);
+            }
     }
 }
