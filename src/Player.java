@@ -3,7 +3,7 @@
  * contains methods of playing the game
  *
  * @author Struan McKenzie
- * @version 1.1
+ * @version 2.0
  */
 
 public class Player {
@@ -18,7 +18,6 @@ public class Player {
     private char[][] temp_board = new char[height][length];
 
     // CONSTRUCTOR
-
     /**
      * default constructor
      */
@@ -38,8 +37,8 @@ public class Player {
     // METHODS
     /**
      * reveal a creature part if found
-     * @param latitude;
-     * @param longitude;
+     * @param latitude y axis value
+     * @param longitude x asis value
      * @param part creature part identifier
      */
     public void setBoard(int latitude, int longitude, char part) {

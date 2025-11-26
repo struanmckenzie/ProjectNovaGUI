@@ -7,6 +7,11 @@
 
 public class GameObjects {
 
+    /**
+     * allows programmer to choose how many of each
+     * object to place on the player's board
+     * @param p player
+     */
     public void spawn(Player p) {
         // num of each object to spawn
         int fish = 4;
@@ -22,6 +27,10 @@ public class GameObjects {
             seaSnake(p);
     }
 
+    /**
+     * places a fish on the player's board
+     * @param p player
+     */
     private void fish(Player p) {
 
         boolean valid = false;
@@ -58,6 +67,10 @@ public class GameObjects {
         }
     }
 
+    /**
+     * places a crab on the player's board
+     * @param p player
+     */
     private void crab(Player p) {
         boolean valid = false;
 
@@ -95,6 +108,10 @@ public class GameObjects {
         }
     }
 
+    /**
+     * places a sea snake on the player's board
+     * @param p player
+     */
     private void seaSnake(Player p) {
         boolean valid = false;
         while (!valid) {

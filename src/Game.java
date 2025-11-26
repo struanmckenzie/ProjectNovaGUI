@@ -6,7 +6,12 @@
  * @version 2.5
  */
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Game {
@@ -152,7 +157,7 @@ public class Game {
     /**
      * loads a previously saved game
      */
-    public void loadGame() {
+    private void loadGame() {
         // initialise player array
         Player[] plr = new Player[2];
 
@@ -237,7 +242,7 @@ public class Game {
     /**
      * prints a help/instructions page
      */
-    public void help() {
+    private void help() {
         // print help page
         System.out.println("""
                 Help page:
@@ -253,7 +258,7 @@ public class Game {
     /**
      * asks the player if they want to enter the pause menu
      */
-    public void pauseMenu(Player[] p, int turn) {
+    private void pauseMenu(Player[] p, int turn) {
         scn.nextLine();
 
         System.out.println("""
@@ -298,7 +303,7 @@ public class Game {
     /**
      * saves the current game to files on disk
      */
-    public void save(Player[] p, int turn) {
+    private void save(Player[] p, int turn) {
         System.out.println("Please enter a name for this save: ");
         String saveName = ("save/" + scn.nextLine());
 
@@ -365,7 +370,12 @@ public class Game {
 
     }
 
-    public void checkBoard(Player p, String explorer) {
+    /**
+     * checks to see if the win condition has been met
+     * @param p player object
+     * @param explorer used to identify which player has won
+     */
+    private void checkBoard(Player p, String explorer) {
         int hiddenCount = 0;  // number of creature parts in hidden board
         int visableCount = 0;  // number of creature parts in visable board
 
