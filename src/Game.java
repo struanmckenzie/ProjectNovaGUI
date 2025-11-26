@@ -3,7 +3,7 @@
  * contains the main method
  *
  * @author Struan McKenzie
- * @version 2.4
+ * @version 2.5
  */
 
 import java.io.*;
@@ -388,11 +388,13 @@ public class Game {
             if (p.getName().equals(explorer))
                 System.out.println("\n" + p.getName() + " is the winner!\n" + """
                         Congratulations!
-                        You managed to save the creatures from the hunter""");
+                        You managed to save the creatures from the hunter.
+                        Hunter, you failed your mission. Do better next time.""");
             else
                 System.out.println("\n" + p.getName() + " is the winner!\n" + """
                         End of mission.
-                        You have hunted all the creatures tto extinction""");
+                        You have hunted all the creatures to extinction.
+                        Explorer, you failed to save the creatures. Try harder next time.""");
 
             System.out.println("\nPress enter to exit");
             scn.nextLine();
