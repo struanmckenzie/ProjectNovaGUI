@@ -65,15 +65,18 @@ public class Game {
     private void play(Player[] p) {
         boolean finished = false;
         int turn = 0; // player whose turn it is
+        String explorer = p[0].getName();   // identify the explorer for the end game message
+
         while (!finished) {
             p[turn].display();
             guess(p[turn]);
-            checkBoard(p[turn]);
-            pauseMenu(p,turn);
+            checkBoard(p[turn], explorer);
+            pauseMenu(p, turn);
 
             if (turn == 0) turn = 1;
             else turn = 0;
         }
+
     }
 
     /**
@@ -87,7 +90,10 @@ public class Game {
 
         for (int i = 0; i < plr.length; i++) {
             plr[i] = new Player();
-            System.out.print("Enter name of player " + (i + 1) + ": ");
+            if (i == 0)
+                System.out.print("Enter the name of the mystical explorer: ");
+            else
+                System.out.print("Enter the name of the hunter: ");
             plr[i].setName(scn.nextLine());
         }
 
@@ -359,7 +365,7 @@ public class Game {
 
     }
 
-    public void checkBoard(Player p) {
+    public void checkBoard(Player p, String explorer) {
         int hiddenCount = 0;  // number of creature parts in hidden board
         int visableCount = 0;  // number of creature parts in visable board
 
@@ -379,7 +385,15 @@ public class Game {
 
         // check to see if all the creatures have been found
         if (hiddenCount == visableCount) {
-            System.out.println("\n" + p.getName() + " is the winner!");
+            if (p.getName().equals(explorer))
+                System.out.println("\n" + p.getName() + " is the winner!\n" + """
+                        Congratulations!
+                        You managed to save the creatures from the hunter""");
+            else
+                System.out.println("\n" + p.getName() + " is the winner!\n" + """
+                        End of mission.
+                        You have hunted all the creatures tto extinction""");
+
             System.out.println("\nPress enter to exit");
             scn.nextLine();
             scn.nextLine();
