@@ -88,7 +88,7 @@ public class Player {
     public int getHealth() { return health; }
 
     /**
-     * sets new hidden board layout
+     * sets entire new hidden board layout
      * @param newHBoard new hidden board
      */
     public void setHidden_board(char[][] newHBoard) {
@@ -96,6 +96,12 @@ public class Player {
             System.arraycopy(newHBoard[i], 0, hidden_board[i], 0, length);
     }
 
+    /**
+     * sets a specific part of the hidden board
+     * @param y axis value
+     * @param x axis value
+     * @param c character specific part should be set to
+     */
     public void setHidden_board(int y, int x, char c) {
         hidden_board[y][x] = c;
     }
@@ -120,9 +126,6 @@ public class Player {
      * @return temporary board
      */
     public char[][] getTemp_board() { return temp_board; }
-
-
-
 
     /**
      * displays the current state of the board to the player
@@ -152,6 +155,5 @@ public class Player {
             System.out.print(letter + " ");
             letter++;
         }
-
     }
 }
