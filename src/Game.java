@@ -117,9 +117,16 @@ public class Game {
     private void guess(Player p) {
         System.out.println("\n\nEnter a coordinate you think a creature might be");
 
-        int x, y;   // declare variable to store coordinates
-        x = getCoordinate("x: ", p.length);
-        y = getCoordinate("y: ", p.height);
+        // get the upper limit for coordinates
+        int[] lim = new int[2];
+        lim[0] = p.length;
+        lim[1] = p.height;
+
+        int[] coordinates = getCoordinate(lim);
+        int x,y;
+        x = coordinates[0];
+        y = coordinates[1];
+
 
         if (p.getHidden_board()[y][x] != '~') {
             System.out.println("Creature part found!");
@@ -137,21 +144,28 @@ public class Game {
      * converts input from String to its
      * equivalent index on the hidden board
      *
-     * @param toPrint what the player should be prompted
      * @return the index for the hidden board
      */
-    private int getCoordinate(String toPrint, int lim) {
-        int i = -1;
-        while (i == -1) {
-            System.out.print(toPrint);
-            int c = scn.next().toCharArray()[0]; // convert string to int
+    private int[] getCoordinate(int[] lim) {
+        // setup array to store the coordinates
+        int[] xy = new int[2];
 
-            if (c >= 97 && c <= (lim+97))    // for input of a lower case letter, i attempted validation but gave up
-                i = (c - 97);
-            else if (c >= 65 && c <= (lim+65))    // for input of an upper case letter
-                i = (c - 65);
+        System.out.print("xy: ");
+        char[] c = scn.next().toCharArray();
+
+        /*boolean valid = true;
+        while (valid) {*/
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] >= 97 /*&& c[i] < (lim[i] + 97)*/)    // for input of a lower case letter
+                xy[i] = (c[i] - 97);
+            else if (c[i] >= 65 /*&& c[i] < (lim[i] + 65)*/)    // for input of an upper case letter
+                xy[i] = (c[i] - 65);
+            else {
+                System.out.println("Error, invalid input");
+                /*valid = false;*/
+                }
         }
-        return i;
+        return xy;
     }
 
     /**
@@ -248,6 +262,10 @@ public class Game {
                 Help page:
                 The aim of the game is to find all the creatures before your opponent.
                 If the game ends early the player with the most points wins
+                
+                Enter the coordinates in the form: xy
+                where 'x' is the letter on the x axis
+                and 'y' is the letter on the y axis
                 
                 Press enter to continue""");
 
