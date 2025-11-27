@@ -134,6 +134,19 @@ public class Game {
             p.setPoints(p.getPoints() + 5);
 
             // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE?????????????????????????????????
+
+            // detect what creature (part) was found
+            switch (p.getHidden_board()[y][x]) {
+                case 'F' -> {
+                    System.out.println("FISH PART FOUND");  // !!! TESTING PURPOSES !!!
+                }
+                case 'S' -> {
+                    System.out.println("SEASNAKE PART FOUND"); // !!! TE
+                }
+            }
+
+
+
         } else {
             p.setBoard(y, x, 'X');
             System.out.println("No luck!");
