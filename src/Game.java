@@ -129,9 +129,14 @@ public class Game {
 
 
         if (p.getHidden_board()[y][x] != '~') {
-            System.out.println("Creature part found!");
-            p.setBoard(y, x, p.getHidden_board()[y][x]);
-            p.setPoints(p.getPoints() + 5);
+            if (p.getBoard()[y][x] == '~') {
+                System.out.println("\nCreature part found!\n+5 Points");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
+                p.setPoints(p.getPoints() + 5);
+            } else {
+                System.out.println("\nYou already guessed there, try again");
+                guess(p);
+            }
 
             // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE??????????
 
@@ -139,26 +144,47 @@ public class Game {
             switch (p.getHidden_board()[y][x]) {
                 case 'F' -> {
                     if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
-                        System.out.println("Fish found!");
+                        System.out.println("\nFish found!\n+5 Bonus Points");
                         p.setPoints(p.getPoints() + 5);
                     }
                 }
                 case 'S' -> {
-                    int b = x;
-                    while (p.getBoard()[y][b] == 'S')   // get to the start of the found parts of the snake
-                        b--;
+                    while (p.getBoard()[y][x] == 'S')   // get to the start of the found parts of the snake
+                        x--;
 
                     int count = 0;  // store the number of snake parts found
-                    b++;    // compensate for while
-                    while (p.getBoard()[y][b] == 'F') {
+                    x++;    // compensate for while taking one away
+                    while (p.getBoard()[y][x] == 'S') {
                         count++;
-                        b++;
+                        x++;
                     }
-                    p.setPoints(p.getPoints() + 5);
 
+                    if (count == 4) {
+                        System.out.println("\nSea Snake found!\n+5 Bonus Points");
+                        p.setPoints(p.getPoints() + 5);
+                    }
                 }
                 case 'C' -> {
-                    System.out.println("CRAB PART FOUND");  // !!! TESTING PURPOSES !!!
+                    if (p.getBoard()[y][x+1] == 'C') {
+                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
+                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+
+                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x + 1] == 'C') {
+                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
+
+                    else if (p.getBoard()[y][x-1] == 'C')
+                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x - 1] == 'C') {
+                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+
+                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x - 1] == 'C') {
+                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
                 }
                 case 'O' -> {
                     System.out.println("STARFISH PART FOUND");  // !!! TESTING PURPOSES !!!
