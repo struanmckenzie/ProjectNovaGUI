@@ -3,7 +3,7 @@
  * contains the main method
  *
  * @author Struan McKenzie
- * @version 2.5
+ * @version 2.6
  */
 
 import java.io.PrintWriter;
@@ -122,7 +122,7 @@ public class Game {
         lim[0] = p.length;
         lim[1] = p.height;
 
-        int[] coordinates = getCoordinate(lim);
+        int[] coordinates = getCoordinates(lim);
         int x,y;
         x = coordinates[0];
         y = coordinates[1];
@@ -146,25 +146,31 @@ public class Game {
      *
      * @return the index for the hidden board
      */
-    private int[] getCoordinate(int[] lim) {
+    private int[] getCoordinates(int[] lim) {
         // setup array to store the coordinates
         int[] xy = new int[2];
 
         System.out.print("xy: ");
         char[] c = scn.next().toCharArray();
 
-        /*boolean valid = true;
-        while (valid) {*/
-        for (int i = 0; i < c.length; i++) {
-            if (c[i] >= 97 /*&& c[i] < (lim[i] + 97)*/)    // for input of a lower case letter
+        boolean valid = true;
+        for (int i = 0; i < 2; i++) {
+            if (c[i] >= 97 && (c[i] < (lim[i] + 97))) {   // for input of a lower case letter
                 xy[i] = (c[i] - 97);
-            else if (c[i] >= 65 /*&& c[i] < (lim[i] + 65)*/)    // for input of an upper case letter
+            }
+            else if (c[i] >= 65 && (c[i] < (lim[i] + 65))) {   // for input of an upper case letter
                 xy[i] = (c[i] - 65);
+            }
             else {
-                System.out.println("Error, invalid input");
-                /*valid = false;*/
+                System.out.println("\nError, invalid input\nTry again.");
+                valid = false;
+                break;
                 }
         }
+
+        // run method again if input was invalid
+        if (!valid)
+            xy = getCoordinates(lim);
         return xy;
     }
 
