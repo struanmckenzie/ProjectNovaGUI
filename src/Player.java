@@ -142,8 +142,8 @@ public class Player {
             letter++;
 
             for (int j = 0; j < length; j++) {
-                //System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
-                System.out.print(board[i][j] + " ");
+                System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
+                //System.out.print(board[i][j] + " ");
             }
             System.out.println();
         }

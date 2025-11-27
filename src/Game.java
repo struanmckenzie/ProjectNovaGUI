@@ -144,6 +144,8 @@ public class Game {
      * converts input from String to its
      * equivalent index on the hidden board
      *
+     * @param lim the limit to prevent a higher number
+     *            than the array can handle
      * @return the index for the hidden board
      */
     private int[] getCoordinates(int[] lim) {
