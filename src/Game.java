@@ -133,15 +133,35 @@ public class Game {
             p.setBoard(y, x, p.getHidden_board()[y][x]);
             p.setPoints(p.getPoints() + 5);
 
-            // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE?????????????????????????????????
+            // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE??????????
 
             // detect what creature (part) was found
             switch (p.getHidden_board()[y][x]) {
                 case 'F' -> {
-                    System.out.println("FISH PART FOUND");  // !!! TESTING PURPOSES !!!
+                    if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
+                        System.out.println("Fish found!");
+                        p.setPoints(p.getPoints() + 5);
+                    }
                 }
                 case 'S' -> {
-                    System.out.println("SEASNAKE PART FOUND"); // !!! TE
+                    int b = x;
+                    while (p.getBoard()[y][b] == 'S')   // get to the start of the found parts of the snake
+                        b--;
+
+                    int count = 0;  // store the number of snake parts found
+                    b++;    // compensate for while
+                    while (p.getBoard()[y][b] == 'F') {
+                        count++;
+                        b++;
+                    }
+                    p.setPoints(p.getPoints() + 5);
+
+                }
+                case 'C' -> {
+                    System.out.println("CRAB PART FOUND");  // !!! TESTING PURPOSES !!!
+                }
+                case 'O' -> {
+                    System.out.println("STARFISH PART FOUND");  // !!! TESTING PURPOSES !!!
                 }
             }
 

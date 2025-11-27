@@ -14,20 +14,28 @@ public class GameObjects {
      */
     public void spawn(Player p) {
         // num of each object to spawn
-        int fish = 4;
+        int fish = 7;
         int crab = 2;
-        int seaSnake = 2;
-        int starfish = 3;
+        int seaSnake = 3;
+        int starfish = 2;
 
-        // spawn creatures
-        for (int i = 0; i < fish; i++)
-            fish(p);
-        for (int i = 0; i < crab; i++)
-            crab(p);
-        for (int i = 0; i < seaSnake; i++)
-            seaSnake(p);
+        // spawn creatures - start with the biggest so they fit
         for (int i = 0; i < starfish; i++)
             starfish(p);
+        removeBuffers(p);
+
+        for (int i = 0; i < crab; i++)
+            crab(p);
+        removeBuffers(p);
+
+        for (int i = 0; i < seaSnake; i++)
+            seaSnake(p);
+        removeBuffers(p);
+
+        for (int i = 0; i < fish; i++)
+            fish(p);
+        removeBuffers(p);
+
     }
 
     /**
@@ -42,8 +50,8 @@ public class GameObjects {
         while (!valid) {
             // fields of a fish
             int hei = 1;
-            int len = 2;
-            int area = 2;
+            int len = 4;    // with buffer
+            int area = 4;
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
@@ -58,7 +66,11 @@ public class GameObjects {
             int count = 0;
             for (int x = startCol; x < endCol; x++) {
                 if (p.getHidden_board()[startRow][x] == '~') {
-                    p.getTemp_board()[startRow][x] = 'F'; // saves layout to temp before valid to save time
+                    if (x == startCol + 1 || x == startCol + 2) {
+                        p.getTemp_board()[startRow][x] = 'F'; // saves layout to temp before valid to save time
+                    }
+                    else
+                        p.temp_board[startRow][x] = 'b';
                     count++;
                 } else
                     // stop early if there isn't space
@@ -83,9 +95,9 @@ public class GameObjects {
         // loop until fish spawned in valid location
         while (!valid) {
             // fields of a crab
-            int hei = 2;
-            int len = 2;
-            int area = 4;
+            int hei = 4;    // with buffer
+            int len = 4;    // with buffer
+            int area = 16;
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
@@ -102,8 +114,13 @@ public class GameObjects {
             int count = 0;
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++) {
+
                     if (p.getHidden_board()[y][x] == '~') {
-                        p.getTemp_board()[y][x] = 'C';  // I have literally no idea why this works
+                        if ((x == startCol + 1 || x == startCol + 2) && (y == startRow + 1 || y == startRow + 2)) {
+                            p.temp_board[y][x] = 'C';
+                        }
+                        else
+                            p.temp_board[y][x] = 'b';   // to distinguish that this is a buffer
                         count++;
                     } else
                         // stop early if there isn't space
@@ -126,8 +143,8 @@ public class GameObjects {
         while (!valid) {
             // fields of a sea snake
             int hei = 1;
-            int len = 4;
-            int area = 4;
+            int len = 6;
+            int area = 6;
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
@@ -145,7 +162,11 @@ public class GameObjects {
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++) {
                     if (p.getHidden_board()[y][x] == '~') {
-                        p.getTemp_board()[y][x] = 'S';
+                        if (x != startCol && x != endCol-1) {
+                            p.temp_board[y][x] = 'S';
+                        }
+                        else
+                            p.temp_board[y][x] = 'b';   // distinguish buffer
                         count++;
                     } else
                         // stop early if there isn't space
@@ -167,9 +188,9 @@ public class GameObjects {
         boolean generated = false;
         while (!generated) {
             // fields of a starfish
-            int hei = 3;
-            int len = 3;
-            int area = 9;
+            int hei = 5;
+            int len = 5;
+            int area = 25;
 
             // make sure temporary board is the same as the hidden one to begin
             for (int i = 0; i < (p.height); i++)
@@ -188,12 +209,14 @@ public class GameObjects {
                 for (int x = startCol; x < endCol; x++) {
 
                     if (p.getHidden_board()[y][x] == '~') {
-                        if (y == startRow && x == startCol + 1)
+                        if (y == startRow + 1 && x == startCol + 2)
                             p.getTemp_board()[y][x] = 'O';  // print top bit
-                        else if (y == startRow + 1)
+                        else if (y == startRow + 2 && (x != startCol && x != endCol - 1))
                             p.getTemp_board()[y][x] = 'O';  // print middle bit
-                        else if (y == startRow + 2 && x == startCol + 1)
+                        else if (y == startRow + 3 && x == startCol + 2)
                             p.getTemp_board()[y][x] = 'O';  // print bottom bit
+                        else
+                            p.temp_board[y][x] = 'b';
                         count++;
                     } else
                         // stop early if there isn't space
@@ -205,5 +228,16 @@ public class GameObjects {
                 generated = true;
             }
         }
+    }
+
+    /**
+     * removes buffers from the hidden board
+     * @param p player
+     */
+    private void removeBuffers(Player p) {
+        for (int i = 0; i < p.height; i++)
+            for (int j = 0; j < p.length - 1; j++)
+                if (p.getHidden_board()[i][j] == 'b')
+                    p.setHidden_board(i,j,'~');
     }
 }

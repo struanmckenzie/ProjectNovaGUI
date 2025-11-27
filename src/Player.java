@@ -15,7 +15,7 @@ public class Player {
     public final int height = 13;
     private char[][] board = new char[height][length];
     private char[][] hidden_board = new char[height][length];
-    private char[][] temp_board = new char[height][length];
+    char[][] temp_board = new char[height][length];
 
     // CONSTRUCTOR
     /**
