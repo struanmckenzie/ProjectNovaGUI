@@ -3,7 +3,7 @@
  * contains the main method
  *
  * @author Struan McKenzie
- * @version 2.6
+ * @version 2.7
  */
 
 import java.io.PrintWriter;
@@ -134,6 +134,7 @@ public class Game {
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);
             } else {
+                // recurs if you've already guessed the coordinates
                 System.out.println("\nYou already guessed there, try again");
                 guess(p);
             }
@@ -165,6 +166,8 @@ public class Game {
                     }
                 }
                 case 'C' -> {
+
+                    // these are separated out so its (kinda) easier to read
                     if (p.getBoard()[y][x+1] == 'C') {
                         if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
                             System.out.println("\nCrab found!\n+5 Bonus Points");
@@ -187,7 +190,32 @@ public class Game {
                         }
                 }
                 case 'O' -> {
-                    System.out.println("STARFISH PART FOUND");  // !!! TESTING PURPOSES !!!
+                    // starting from the centre
+                    if (p.getBoard()[y-1][x] == 'O' && p.getBoard()[y+1][x] == 'O' &&
+                            p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x-1] == 'O') {
+                        System.out.println("\nStarfish found!\n+5 Bonus Points");
+                        p.setPoints(p.getPoints() + 5);
+                    }
+                    // now we know it doesn't start in the centre
+                    // starting from left or right side
+                    else if (p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x+2] == 'O' ||
+                             p.getBoard()[y][x-1] == 'O' && p.getBoard()[y][x-2] == 'O') {
+                        if (p.getBoard()[y-1][x-1] == 'O' && p.getBoard()[y+1][x-1] == 'O' ||
+                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y+1][x+1] == 'O') {
+                            System.out.println("\nStarfish found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
+                    // now we know it doesn't start in the middle row
+                    // starting from the top or bottom
+                    else if(p.getBoard()[y-1][x] == 'O' && p.getBoard()[y-2][x] == 'O' ||
+                            p.getBoard()[y+1][x] == 'O' && p.getBoard()[y+2][x] == 'O') {
+                        if (p.getBoard()[y+1][x-1] == 'O' && p.getBoard()[y+1][x+1] == 'O' ||
+                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y-1][x-1] == 'O') {
+                            System.out.println("\nStarfish found!\n+5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
                 }
             }
 
