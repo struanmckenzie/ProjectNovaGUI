@@ -26,12 +26,14 @@ public class Game {
      * menu system for the game
      */
     private void menu() {
-        System.out.println("\nMenu:");
         System.out.println("""
-                Start new game - 1
-                Load game ------ 2
-                View help ------ 3
-                Quit ----------- 4""");
+                
+                + ----- MENU -------
+                | Start new game • 1
+                | Load game •••••• 2
+                | View help •••••• 3
+                | Quit ••••••••••• 4
+                + ------------------""");
         String option = scn.nextLine();
 
         switch (option) {
@@ -95,9 +97,9 @@ public class Game {
         for (int i = 0; i < plr.length; i++) {
             plr[i] = new Player();
             if (i == 0)
-                System.out.print("Enter the name of the mystical explorer: ");
+                System.out.print("Enter the name of the\nMystical explorer: ");
             else
-                System.out.print("Enter the name of the hunter: ");
+                System.out.print("Evil hunter: ");
             plr[i].setName(scn.nextLine());
         }
 
@@ -114,7 +116,7 @@ public class Game {
      * @param p player
      */
     private void guess(Player p) {
-        System.out.println("\n\nEnter a coordinate you think a creature might be");
+        System.out.println("\n\nGuess where a creature might be");
 
         // get the upper limit for coordinates
         int[] lim = new int[2];
@@ -351,13 +353,15 @@ public class Game {
     private void help() {
         // print help page
         System.out.println("""
-                Help page:
-                The aim of the game is to find all the creatures before your opponent.
-                If the game ends early the player with the most points wins
-                
-                Enter the coordinates in the form: xy
-                where 'x' is the letter on the x axis
-                and 'y' is the letter on the y axis
+                + --------------------------- HELP PAGE -------------------------------- +
+                | The aim of the game is to find all the creatures before your opponent. |
+                | If the game ends early the player with the most points wins,           |
+                | this is displayed on the pause menu before quitting                    |
+                |                                                                        |
+                | Enter the coordinates in the form: xy                                  |
+                | where 'x' is the letter on the x axis                                  |
+                | and 'y' is the letter on the y axis                                    |
+                + ---------------------------------------------------------------------- +
                 
                 Press enter to continue""");
 
@@ -379,19 +383,20 @@ public class Game {
         String s = scn.nextLine();
 
         if (!s.isEmpty()) {
-            System.out.println("\n- - - - PAUSED - - - -");
+            System.out.println("\n+------ PAUSED --------");
             String winner = p[0].getName();
             if (p[1].getPoints() > p[0].getPoints())
                 winner = p[1].getName();
             else if (p[0].getPoints() == p[1].getPoints())
                 winner = "Tied";
 
-            System.out.print("Current winner is: " + winner);
+            System.out.print("| Winning: " + winner);
             System.out.println("""
                     
-                    Save ----------------- 1
-                    Quit to menu --------- 2
-                    Continue --- press enter""");
+                    | Save •••••••••••••• 1
+                    | Quit to menu •••••• 2
+                    | Continue •••••• Enter
+                    +----------------------""");
             String option = scn.nextLine();
 
             if (!option.isEmpty()) {

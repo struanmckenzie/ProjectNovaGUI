@@ -135,25 +135,38 @@ public class Player {
         System.out.println("Points: " + getPoints());
         System.out.println("Health: " + getHealth());
 
+        // print top border
+        System.out.print("+ ");
+        for (int i = 0; i < length * 3 + 3; i++)
+            System.out.print("-");
+        System.out.println(" +");
+
         // print board and row numbers
         char letter = 97;
         for (int i = 0; i < height; i++) {
-            System.out.print(letter + " ");
+            System.out.print("|  " + letter + "  ");
             letter++;
 
             for (int j = 0; j < length; j++) {
                 //System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
-                System.out.print(board[i][j] + " ");
+                System.out.print(board[i][j] + "  ");
             }
-            System.out.println();
+            System.out.println("|");
         }
 
         // print bottom axis
-        System.out.print("  ");
+        System.out.print("|  0  ");
         letter = 97;
         for (int i = 0; i < length; i++) {
-            System.out.print(letter + " ");
+            System.out.print(letter + "  ");
             letter++;
         }
+        System.out.println("|");
+
+        // print bottom border
+        System.out.print("+ ");
+        for (int i = 0; i < length * 3 + 3; i++)
+            System.out.print("-");
+        System.out.print(" +");
     }
 }
