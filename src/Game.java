@@ -68,11 +68,10 @@ public class Game {
      * @param p player array
      */
     private void play(Player[] p) {
-        boolean finished = false;
         int turn = 0; // player whose turn it is
         String explorer = p[0].getName();   // identify the explorer for the end game message
 
-        while (!finished) {
+        while (true) {
             p[turn].display();
             guess(p[turn]);
             checkBoard(p[turn], explorer);
@@ -138,8 +137,6 @@ public class Game {
                 System.out.println("\nYou already guessed there, try again");
                 guess(p);
             }
-
-            // HOW TO IDENTIFY IF PLAYER FOUND LAST PART OF CREATURE??????????
 
             // detect what creature (part) was found
             switch (p.getHidden_board()[y][x]) {
@@ -510,14 +507,12 @@ public class Game {
         if (hiddenCount == visableCount) {
             if (p.getName().equals(explorer))
                 System.out.println("\n" + p.getName() + " is the winner!\n" + """
-                        Congratulations!
                         You managed to save the creatures from the hunter.
                         Hunter, you failed your mission. Do better next time.""");
             else
                 System.out.println("\n" + p.getName() + " is the winner!\n" + """
-                        End of mission.
                         You have hunted all the creatures to extinction.
-                        Explorer, you failed to save the creatures. Try harder next time.""");
+                        Explorer, you failed to save the creatures. Do better next time.""");
 
             System.out.println("\nPress enter to exit");
             scn.nextLine();

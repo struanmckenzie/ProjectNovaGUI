@@ -14,10 +14,10 @@ public class GameObjects {
      */
     public void spawn(Player p) {
         // num of each object to spawn
-        int fish = 7;
-        int crab = 2;
-        int seaSnake = 3;
-        int starfish = 2;
+        int fish = 1;//7;
+        int crab = 0;//2;
+        int seaSnake =0 ;//3;
+        int starfish = 0;//2;
 
         // spawn creatures - start with the biggest so they fit
         for (int i = 0; i < starfish; i++)
