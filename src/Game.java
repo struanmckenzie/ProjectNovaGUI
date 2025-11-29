@@ -72,11 +72,17 @@ public class Game {
     private void play(Player[] p) {
         int turn = 0; // player whose turn it is
         String explorer = p[0].getName();   // identify the explorer for the end game message
+        int megaGuess = -1;
 
         while (true) {
             p[turn].display();
-            guess(p[turn]);
-            checkBoard(p[turn], explorer);
+            megaGuess = guess(p[turn], -1, 0);
+            if (megaGuess != -1) {
+                for (int x = 0; x < p[turn].length; x++) {
+                    guess(p[turn], megaGuess, x);
+                }
+            }
+            checkStatus(p[turn], explorer);
             pauseMenu(p, turn);
 
             if (turn == 0) turn = 1;
@@ -115,29 +121,51 @@ public class Game {
      *
      * @param p player
      */
-    private void guess(Player p) {
-        System.out.println("\n\nGuess where a creature might be");
+    private int guess(Player p, int megaGuess, int iteration) {
+        int x, y;
+        if (megaGuess == -1) {
+            System.out.println("\n\nGuess where a creature might be");
 
-        // get the upper limit for coordinates
-        int[] lim = new int[2];
-        lim[0] = p.length;
-        lim[1] = p.height;
+            // get the upper limit for coordinates
+            int[] lim = new int[2];
+            lim[0] = p.length;
+            lim[1] = p.height;
 
-        int[] coordinates = getCoordinates(lim);
-        int x,y;
-        x = coordinates[0];
-        y = coordinates[1];
-
+            int[] coordinates = getCoordinates(lim);
+            x = coordinates[0];
+            y = coordinates[1];
+        }
+        else {
+            y = megaGuess;
+            x = iteration;
+        }
 
         if (p.getHidden_board()[y][x] != '~') {
-            if (p.getBoard()[y][x] == '~') {
+            if (p.getHidden_board()[y][x] == 'B') {
+                System.out.println("\nYou have triggered an ocean bomb, you lose 25HP");
+                p.setHealth(p.getHealth() - 25);
+            }
+            else if  (p.getHidden_board()[y][x] == 'H') {
+                System.out.println("\nYou have found some medicinal seaweed, you gain 15HP");
+                p.setHealth(p.getHealth() + 15);
+            }
+            else if (p.getHidden_board()[y][x] == 'M') {
+                if  (megaGuess == -1) {
+                    System.out.println("You found a MegaGuess tile - this reveals all the tiles in the same row.");
+                    return y;
+                } else System.out.println("\nMegaGuess tile");
+            }
+            else if (p.getBoard()[y][x] == '~') {
                 System.out.println("\nCreature part found!\n+5 Points");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);
             } else {
-                // recurs if you've already guessed the coordinates
-                System.out.println("\nYou already guessed there, try again");
-                guess(p);
+                // recurs if you've already guessed the coordinates and it isn't a MegaGuess
+                if (megaGuess == -1) {
+                    System.out.println("\nYou already guessed there, try again");
+                    guess(p, megaGuess, iteration);
+                } else
+                    System.out.println("\nPrevious guess");
             }
 
             // detect what creature (part) was found
@@ -217,13 +245,13 @@ public class Game {
                     }
                 }
             }
-
-
-
         } else {
             p.setBoard(y, x, 'X');
-            System.out.println("No luck!");
+            System.out.println("\nNo luck!");
         }
+
+        // return -1 if tile was not a MegaGuess tile
+        return -1;
     }
 
     /**
@@ -377,8 +405,7 @@ public class Game {
 
         System.out.println("""
                 
-                Press enter to continue
-                or enter any other key for pause menu""");
+                Press enter to continue or enter any other key for pause menu""");
 
         String s = scn.nextLine();
 
@@ -474,8 +501,7 @@ public class Game {
 
         System.out.println("""
             
-            Press enter to continue
-            or enter any other key for main menu""");
+            Press enter to continue or enter any other key for main menu""");
 
         String s = scn.nextLine();
 
@@ -490,7 +516,26 @@ public class Game {
      * @param p player object
      * @param explorer used to identify which player has won
      */
-    private void checkBoard(Player p, String explorer) {
+    private void checkStatus(Player p, String explorer) {
+
+        // check if the player has died
+        // and act accordingly if they have
+        if (p.getHealth() == 0) {
+            System.out.println("\nYou died :(");
+            if (p.getName().equals(explorer))
+                System.out.println("""
+                        You failed to save the rest of the creatures from the hunter.
+                        The hunter continued on and managed to hunt down all the creatures and wins by default.""");
+            else
+                System.out.println("""
+                        You failed to hunt all the creatures down.
+                        The explorer went on to save the rest of the creatures and wins by default.""");
+
+            System.out.println("\nPress enter to exit");
+            scn.nextLine();
+            System.exit(0);
+        }
+
         int hiddenCount = 0;  // number of creature parts in hidden board
         int visableCount = 0;  // number of creature parts in visable board
 

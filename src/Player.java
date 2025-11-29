@@ -11,7 +11,7 @@ public class Player {
     private String name;
     private int points;
     private int health;
-    public final int length = 13;
+    public final int length = 14;
     public final int height = 13;
     private char[][] board = new char[height][length];
     private char[][] hidden_board = new char[height][length];
@@ -148,8 +148,8 @@ public class Player {
             letter++;
 
             for (int j = 0; j < length; j++) {
-                //System.out.print(hidden_board[i][j] + " ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
-                System.out.print(board[i][j] + "  ");
+                System.out.print(hidden_board[i][j] + "  ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
+                //System.out.print(board[i][j] + "  ");
             }
             System.out.println("|");
         }

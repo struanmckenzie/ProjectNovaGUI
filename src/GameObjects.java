@@ -14,12 +14,15 @@ public class GameObjects {
      */
     public void spawn(Player p) {
         // num of each object to spawn
-        int fish = 1;//7;
-        int crab = 0;//2;
-        int seaSnake =0 ;//3;
-        int starfish = 0;//2;
+        int fish = 7;
+        int crab = 2;
+        int seaSnake = 3;
+        int starfish = 2;
+        int bomb = 4;
+        int medSeaweed = 2;
+        int megaGuess = 1;
 
-        // spawn creatures - start with the biggest so they fit
+        // spawn objects - start with the biggest so they fit
         for (int i = 0; i < starfish; i++)
             starfish(p);
         removeBuffers(p);
@@ -36,8 +39,62 @@ public class GameObjects {
             fish(p);
         removeBuffers(p);
 
+        for (int i = 0; i < bomb; i++) {
+            placeSingleTileObj(p, 'B');
+        }
+
+        for (int i = 0; i < medSeaweed; i++) {
+            placeSingleTileObj(p, 'H');
+        }
+
+        for (int i = 0; i < megaGuess; i++) {
+            placeSingleTileObj(p, 'M');
+        }
+
+
+
     }
 
+
+
+
+
+
+    // mega guess
+
+
+    /**
+     * places objects
+     * @param p player
+     * @param obj object to place
+     */
+    private void placeSingleTileObj(Player p, char obj) {
+        boolean valid = false;
+
+        while (!valid) {
+            // make sure temporary board is the same as the hidden one to begin
+            for (int i = 0; i < (p.height); i++)
+                System.arraycopy(p.getHidden_board()[i], 0, p.getTemp_board()[i], 0, p.length);
+
+            int y = (int) (Math.random() * (p.height - 1));
+            int x = (int) (Math.random() * (p.length - 1));
+
+            boolean canPlace = false;
+
+            if (p.getHidden_board()[y][x] == '~') {
+                p.getTemp_board()[y][x] = obj;
+                canPlace = true;
+            }
+
+            // can it
+            if (canPlace) {
+                p.setHidden_board(p.getTemp_board());
+                valid = true;
+            }
+        }
+    }
+
+    // creatures
     /**
      * places a fish on the player's board
      * @param p player
