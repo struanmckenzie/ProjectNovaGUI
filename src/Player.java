@@ -11,11 +11,11 @@ public class Player {
     private String name;
     private int points;
     private int health;
-    public final int length = 14;
-    public final int height = 13;
-    private char[][] board = new char[height][length];
-    private char[][] hidden_board = new char[height][length];
-    char[][] temp_board = new char[height][length];
+    public int length;
+    public int height;
+    private char[][] board;
+    private char[][] hidden_board;
+    char[][] temp_board;
 
     // CONSTRUCTOR
     /**
@@ -25,6 +25,12 @@ public class Player {
         name = "John";
         points = 0;
         health = 100;
+        height = 16;
+        length = 16;
+        board = new char[height][length];
+        hidden_board = new char[height][length];
+        temp_board = new char[height][length];
+
 
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
@@ -127,46 +133,84 @@ public class Player {
      */
     public char[][] getTemp_board() { return temp_board; }
 
-    /**
-     * displays the current state of the board to the player
-     */
-    public void display() {
-        System.out.println("\n" + getName());
+    public boolean hint(boolean hint) {
+        System.out.println("Player: " + getName());
         System.out.println("Points: " + getPoints());
         System.out.println("Health: " + getHealth());
 
+        System.out.print("""
+
+        Your health is under 25HP!!
+        You have the opportunity to spend 10 points to receive a hint.
+        The hint reveals all for 10 seconds. Use this time wisely.
+        To buy this hint enter any character, to decline press enter.
+        """);
+
+        String h = Game.scn.nextLine();
+        if (h.isEmpty())
+            hint = false;
+
+        else
+            points = points - 10;
+
+        return hint;
+    }
+
+    /**
+     * displays the current state of the board to the player
+     */
+    public void display(boolean hint) {
+        if (!hint) {
+            System.out.println("Player: " + getName());
+            System.out.println("Points: " + getPoints());
+            System.out.println("Health: " + getHealth());
+        } else
+            System.out.println("\n= = = = HINT = = = =");
+
         // print top border
         System.out.print("+ ");
-        for (int i = 0; i < length * 3 + 3; i++)
+        for (int i = 0; i < length * 2 + 1; i++)
             System.out.print("-");
         System.out.println(" +");
 
         // print board and row numbers
         char letter = 97;
         for (int i = 0; i < height; i++) {
-            System.out.print("|  " + letter + "  ");
+            System.out.print("| " + letter + " ");
             letter++;
 
             for (int j = 0; j < length; j++) {
-                System.out.print(hidden_board[i][j] + "  ");    // FOR TESTING PURPOSES THIS IS THE HIDDEN BOARD
-                //System.out.print(board[i][j] + "  ");
+                if (hint)
+                    System.out.print(hidden_board[i][j] + " ");
+                else System.out.print(board[i][j] + " ");
             }
             System.out.println("|");
         }
 
         // print bottom axis
-        System.out.print("|  0  ");
+        System.out.print("|   ");
         letter = 97;
         for (int i = 0; i < length; i++) {
-            System.out.print(letter + "  ");
+            System.out.print(letter + " ");
             letter++;
         }
         System.out.println("|");
 
         // print bottom border
         System.out.print("+ ");
-        for (int i = 0; i < length * 3 + 3; i++)
+        for (int i = 0; i < length * 2 + 1; i++)
             System.out.print("-");
         System.out.print(" +");
+
+        if (hint) {
+            System.out.println("\n= = = = HINT = = = =");
+            // wait for 10 seconds
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            System.out.print("\033[H\033[2J");
+        }
     }
 }

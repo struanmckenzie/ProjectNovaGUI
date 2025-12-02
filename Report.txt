@@ -1,0 +1,6 @@
+An introduction to your project, e.g., what your project is/was and details of what’s in your report (as below).
+A summary of the features / requirements that you managed to implement in your game.
+Any major design considerations you made, e.g., did you choose to use a certain feature, a certain way of representing the game board, did you choose to implement something in a particular way? What was the main driving factor for these decisions? If applicable, please include pseudocode for any complex areas of the game that you had to think about / design in advance of coding.
+An extended critical, self-evaluation of the main challenges, strengths and weaknesses encountered during development. Please highlight aspects of your code which you are particularly pleased with / proud of.
+
+

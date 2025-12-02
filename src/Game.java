@@ -6,19 +6,15 @@
  * @version 2.7
  */
 
-import java.io.PrintWriter;
-import java.io.FileOutputStream;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.Scanner;
 
 public class Game {
-    private final Scanner scn = new Scanner(System.in);
+    public static final Scanner scn = new Scanner(System.in);
 
     public static void main(String[] args) {
         Game g = new Game();
+        System.out.print("\033[H\033[2J");
         g.menu();
     }
 
@@ -26,41 +22,32 @@ public class Game {
      * menu system for the game
      */
     private void menu() {
-        System.out.println("""
-                
-                + ----- MENU -------
-                | Start new game • 1
-                | Load game •••••• 2
-                | View help •••••• 3
-                | Quit ••••••••••• 4
-                + ------------------""");
+        System.out.print("\033[H\033[2J");  // clear terminal
+        System.out.print("""
+                + ------ MENU ------ +
+                | Start new game • 1 |
+                | Load game •••••• 2 |
+                | View help •••••• 3 |
+                | Quit ••••••••••• q |
+                + ------------------ +
+                """);
         String option = scn.nextLine();
 
         switch (option) {
             case "1" -> {
-                System.out.println();
+                System.out.print("\033[H\033[2J");
                 startNewGame();
             }
             case "2" -> {
-                System.out.println();
+                System.out.print("\033[H\033[2J");
                 loadGame();
             }
             case "3" -> {
-                System.out.println();
+                System.out.print("\033[H\033[2J");
                 help();
             }
-            case "4" -> {
-                System.out.println("""
-                        
-                        Press enter to stay
-                        or enter q to quit""");
-                String opt = scn.nextLine();
+            case "q", "Q" -> System.exit(0);
 
-                if (opt.equals("q") || opt.equals("Q"))
-                    System.exit(0);
-                else
-                    menu();
-            }
             default -> menu();
         }
     }
@@ -72,17 +59,43 @@ public class Game {
     private void play(Player[] p) {
         int turn = 0; // player whose turn it is
         String explorer = p[0].getName();   // identify the explorer for the end game message
-        int megaGuess = -1;
+        int megaGuess;
+        boolean hint;    // store which board to display
+        String message = ""; // message to print after guess
 
         while (true) {
-            p[turn].display();
-            megaGuess = guess(p[turn], -1, 0);
+            System.out.print("\033[H\033[2J");  // clear terminal
+            hint = checkStatus(p[turn], explorer);
+
+            // only display if player needs a hint
+            if (hint) {
+                hint = p[turn].hint(hint);
+                p[turn].display(hint);
+                hint = false;
+            }
+
+            System.out.print("\033[H\033[2J");  // clear terminal
+            p[turn].display(hint);
+
+            megaGuess = guess(message, p[turn], -1, 0);
             if (megaGuess != -1) {
                 for (int x = 0; x < p[turn].length; x++) {
-                    guess(p[turn], megaGuess, x);
+                    guess(message, p[turn], megaGuess, x);
+                    System.out.print(message);
                 }
             }
-            checkStatus(p[turn], explorer);
+
+            scn.nextLine(); // idk why
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            System.out.print("\033[H\033[2J");  // clear terminal
+
+            p[turn].display(hint);
             pauseMenu(p, turn);
 
             if (turn == 0) turn = 1;
@@ -121,7 +134,7 @@ public class Game {
      *
      * @param p player
      */
-    private int guess(Player p, int megaGuess, int iteration) {
+    private int guess(String message, Player p, int megaGuess, int iteration) {
         int x, y;
         if (megaGuess == -1) {
             System.out.println("\n\nGuess where a creature might be");
@@ -141,29 +154,39 @@ public class Game {
         }
 
         if (p.getHidden_board()[y][x] != '~') {
+            // bomb found
             if (p.getHidden_board()[y][x] == 'B') {
                 System.out.println("\nYou have triggered an ocean bomb, you lose 25HP");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setHealth(p.getHealth() - 25);
             }
+
+            // seaweed found
             else if  (p.getHidden_board()[y][x] == 'H') {
                 System.out.println("\nYou have found some medicinal seaweed, you gain 15HP");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setHealth(p.getHealth() + 15);
             }
+
+            // MegaGuess found
             else if (p.getHidden_board()[y][x] == 'M') {
                 if  (megaGuess == -1) {
                     System.out.println("You found a MegaGuess tile - this reveals all the tiles in the same row.");
+                    p.setBoard(y, x, p.getHidden_board()[y][x]);
                     return y;
                 } else System.out.println("\nMegaGuess tile");
             }
+
+            // creature found
             else if (p.getBoard()[y][x] == '~') {
                 System.out.println("\nCreature part found!\n+5 Points");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);
             } else {
-                // recurs if you've already guessed the coordinates and it isn't a MegaGuess
+                // recurs if you've already guessed the coordinates and it's not a MegaGuess
                 if (megaGuess == -1) {
                     System.out.println("\nYou already guessed there, try again");
-                    guess(p, megaGuess, iteration);
+                    guess(message, p, megaGuess, iteration);
                 } else
                     System.out.println("\nPrevious guess");
             }
@@ -193,7 +216,6 @@ public class Game {
                     }
                 }
                 case 'C' -> {
-
                     // these are separated out so its (kinda) easier to read
                     if (p.getBoard()[y][x+1] == 'C') {
                         if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
@@ -294,11 +316,17 @@ public class Game {
      * loads a previously saved game
      */
     private void loadGame() {
+        File theDir = new File("./save");
+        if (!theDir.exists()){
+            theDir.mkdirs();
+        }
+
         // initialise player array
         Player[] plr = new Player[2];
 
         for (int i = 0; i < plr.length; i++)
             plr[i] = new Player();
+
 
         System.out.println("Please enter the name of the save: ");
         String saveName = ("save/" + scn.nextLine());
@@ -315,17 +343,31 @@ public class Game {
             BufferedReader br;
 
             try {
+                // load details
+                fr = new FileReader(loadDetails);
+                br = new BufferedReader(fr);
+
+                plr[player].length = Integer.parseInt(br.readLine());
+                plr[player].height = Integer.parseInt(br.readLine());
+                plr[player].setName(br.readLine());
+                plr[player].setPoints(Integer.parseInt(br.readLine()));
+                plr[player].setHealth(Integer.parseInt(br.readLine()));
+
+                String nextLine = br.readLine();
+                if (nextLine != null) {
+                    startingPlayer = Integer.parseInt(nextLine);
+                }
+
                 // load board
                 fr = new FileReader(loadBoard);
                 br = new BufferedReader(fr);
 
-                // effectively making a for loop from a while loop coz buffered reader
-                String nextLine = br.readLine();
+                nextLine = br.readLine();
                 int i = 0;
-                while (i < 15 && nextLine != null) {
-                    for (int j = 0; j < 20; j++) {
+                while(nextLine != null) {
+                    for (int j = 0; j < plr[player].length; j++)
                         plr[player].setBoard(i, j, nextLine.toCharArray()[j]);
-                    }
+
                     nextLine = br.readLine();
                     i++;
                 }
@@ -337,27 +379,15 @@ public class Game {
 
                 nextLine = br.readLine();
                 i = 0;
-                while (i < 15 && nextLine != null) {
-                    for (int j = 0; j < 20; j++) {
+                while (nextLine != null) {
+                    for (int j = 0; j < plr[player].length; j++)
                         plr[player].setHidden_board(i, j, nextLine.toCharArray()[j]);
-                    }
+
                     nextLine = br.readLine();
                     i++;
                 }
                 br.close();
 
-                // load other details
-                fr = new FileReader(loadDetails);
-                br = new BufferedReader(fr);
-
-                plr[player].setName(br.readLine());
-                plr[player].setPoints(Integer.parseInt(br.readLine()));
-                plr[player].setHealth(Integer.parseInt(br.readLine()));
-
-                nextLine = br.readLine();
-                if (nextLine != null) {
-                    startingPlayer = Integer.parseInt(nextLine);
-                }
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -380,18 +410,31 @@ public class Game {
      */
     private void help() {
         // print help page
-        System.out.println("""
+        System.out.print("""
                 + --------------------------- HELP PAGE -------------------------------- +
                 | The aim of the game is to find all the creatures before your opponent. |
-                | If the game ends early the player with the most points wins,           |
-                | this is displayed on the pause menu before quitting                    |
+                | If the game ends early the player with the most points wins            |
+                | the current winner is displayed on the pause menu before quitting      |
                 |                                                                        |
                 | Enter the coordinates in the form: xy                                  |
                 | where 'x' is the letter on the x axis                                  |
                 | and 'y' is the letter on the y axis                                    |
+                |                                                                        |
+                | 5 points are earned for every part of a creature found                 |
+                | 5 bonus points are earned once a whole creature is found               |
+                | Bombs take away 25HP                                                   |
+                | Seaweed adds 15HP (effectively acts as a shield if you have 100HP)     |
+                | MegaGuess reveals a whole row                                          |
+                |                                                                        |
+                | Objects ID key:                                                        |
+                | Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess       |
+                |  FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M           |
+                |      |           |  CC   |   OOO    |      |         |                 |
+                |      |           |       |    O     |      |         |                 |
                 + ---------------------------------------------------------------------- +
                 
-                Press enter to continue""");
+                Press enter to continue
+                """);
 
         scn.nextLine();
         menu();
@@ -401,38 +444,40 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        scn.nextLine();
-
         System.out.println("""
+                
                 
                 Press enter to continue or enter any other key for pause menu""");
 
         String s = scn.nextLine();
+        System.out.print("\033[H\033[2J");  // clear terminal
 
         if (!s.isEmpty()) {
-            System.out.println("\n+------ PAUSED --------");
+            System.out.print("""
+                    + ----- PAUSED -------- +
+                    | Save •••••••••••••• s |
+                    | Quit to menu •••••• q |
+                    | Continue •••••• Enter |
+                    + --------------------- +
+                    """);
+
             String winner = p[0].getName();
             if (p[1].getPoints() > p[0].getPoints())
                 winner = p[1].getName();
             else if (p[0].getPoints() == p[1].getPoints())
                 winner = "Tied";
 
-            System.out.print("| Winning: " + winner);
-            System.out.println("""
-                    
-                    | Save •••••••••••••• 1
-                    | Quit to menu •••••• 2
-                    | Continue •••••• Enter
-                    +----------------------""");
+            System.out.println("Winning: " + winner);
+
             String option = scn.nextLine();
 
             if (!option.isEmpty()) {
                 switch (option) {
-                    case "1" -> {
+                    case "s", "S" -> {
                         System.out.println();
                         save(p, turn);
                     }
-                    case "2" -> {
+                    case "q", "Q" -> {
                         System.out.println();
                         menu();
                     }
@@ -446,6 +491,11 @@ public class Game {
      * saves the current game to files on disk
      */
     private void save(Player[] p, int turn) {
+        File theDir = new File("./save");
+        if (!theDir.exists()){
+            theDir.mkdirs();
+        }
+
         System.out.println("Please enter a name for this save: ");
         String saveName = ("save/" + scn.nextLine());
 
@@ -463,6 +513,7 @@ public class Game {
                 outStream = new FileOutputStream(saveBoard);
                 pw = new PrintWriter(outStream);
 
+                // write board to file
                 for (int i = 0; i < p[player].height; i++) {
                     for (int j = 0; j < p[player].length; j++) {
                         pw.print(p[player].getBoard()[i][j]);
@@ -471,7 +522,7 @@ public class Game {
                 }
                 pw.close();
 
-                // save hidden board
+                // write hidden board to file
                 outStream = new FileOutputStream(saveHBoard);
                 pw = new PrintWriter(outStream);
 
@@ -487,7 +538,11 @@ public class Game {
                 outStream = new FileOutputStream(saveDetails);
                 pw = new PrintWriter(outStream);
 
-                pw.println(p[player].getName() + "\n" + p[player].getPoints() + "\n" + p[player].getHealth());
+                pw.println(p[player].length + "\n" +
+                        p[player].height + "\n" +
+                        p[player].getName() + "\n" +
+                        p[player].getPoints() + "\n" +
+                        p[player].getHealth());
 
                 // mark the player who should start
                 if (player != turn)
@@ -516,7 +571,7 @@ public class Game {
      * @param p player object
      * @param explorer used to identify which player has won
      */
-    private void checkStatus(Player p, String explorer) {
+    private boolean checkStatus(Player p, String explorer) {
 
         // check if the player has died
         // and act accordingly if they have
@@ -569,5 +624,10 @@ public class Game {
             scn.nextLine();
             System.exit(0);
             }
+
+        if (p.getHealth() <= 25) {
+            return true;
+        }
+        else return false;
     }
 }
