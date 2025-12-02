@@ -83,13 +83,9 @@ public class Game {
                     }
             }
 
-            scn.nextLine(); // idk why
+            scn.nextLine(); // eat up something i dont even know anymore help
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
 
             System.out.print("\033[H\033[2J");  // clear terminal
 
@@ -285,11 +281,16 @@ public class Game {
     private int[] getCoordinates(int[] lim) {
         // setup array to store the coordinates
         int[] xy = new int[2];
-
-        System.out.print("xy: ");
-        char[] c = scn.next().toCharArray();
-
         boolean valid = true;
+
+        char[] c;
+        do {
+            System.out.print("xy: ");
+            c = scn.next().toCharArray();
+            if (c.length != 2) System.out.println("\nInvalid input\nTry again");
+        } while (c.length != 2);
+
+
         for (int i = 0; i < 2; i++) {
             if (c[i] >= 97 && (c[i] < (lim[i] + 97))) {   // for input of a lower case letter
                 xy[i] = (c[i] - 97);
@@ -314,9 +315,15 @@ public class Game {
      * loads a previously saved game
      */
     private void loadGame() {
-        File theDir = new File("./save");
-        if (!theDir.exists()){
-            theDir.mkdirs();
+        // get name of save and make sure it exists
+        System.out.println("Please enter the name of the save: ");
+        String saveName = ("./.PN/save/" + scn.nextLine());
+
+        File save = new File(saveName + "0" + "Details.csv");
+        if (!save.exists()) {
+            System.out.println("Save does not exist press enter to return to menu\n");
+            scn.nextLine();
+            menu();
         }
 
         // initialise player array
@@ -326,16 +333,14 @@ public class Game {
             plr[i] = new Player();
 
 
-        System.out.println("Please enter the name of the save: ");
-        String saveName = ("save/" + scn.nextLine());
 
         int startingPlayer = 0;
 
         for (int player = 0; player < 2; player++) {
-            // set up names to save files under
-            String loadBoard = (saveName + "_" + player + "_Board.csv");
-            String loadHBoard = (saveName + "_" + player + "_HBoard.csv");
-            String loadDetails = (saveName + "_" + player + "_Details.csv");
+            // names of files to load
+            String loadBoard = (saveName + player + "Board.csv");
+            String loadHBoard = (saveName + player + "HBoard.csv");
+            String loadDetails = (saveName + player + "Details.csv");
 
             FileReader fr;
             BufferedReader br;
@@ -412,11 +417,11 @@ public class Game {
                 + --------------------------- HELP PAGE -------------------------------- +
                 | The aim of the game is to find all the creatures before your opponent. |
                 | If the game ends early the player with the most points wins            |
-                | the current winner is displayed on the pause menu before quitting      |
+                |  the current winner is displayed on the pause menu before quitting.    |
                 |                                                                        |
                 | Enter the coordinates in the form: xy                                  |
-                | where 'x' is the letter on the x axis                                  |
-                | and 'y' is the letter on the y axis                                    |
+                |  where 'x' is the letter on the x axis                                 |
+                |  and 'y' is the letter on the y axis                                   |
                 |                                                                        |
                 | 5 points are earned for every part of a creature found                 |
                 | 5 bonus points are earned once a whole creature is found               |
@@ -424,11 +429,15 @@ public class Game {
                 | Seaweed adds 15HP (effectively acts as a shield if you have 100HP)     |
                 | MegaGuess reveals a whole row                                          |
                 |                                                                        |
+                | If you are under 25HP you will be give the opportunity to buy a hint   |
+                |  with your points which will reveal the board for 10 seconds.          |
+                |  Use this time wisely                                                  |
+                |                                                                        |
                 | Objects ID key:                                                        |
-                | Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess       |
-                |  FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M           |
-                |      |           |  CC   |   OOO    |      |         |                 |
-                |      |           |       |    O     |      |         |                 |
+                |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
+                |     FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M        |
+                |         |           |  CC   |   OOO    |      |         |              |
+                |         |           |       |    O     |      |         |              |
                 + ---------------------------------------------------------------------- +
                 
                 Press enter to continue
@@ -489,19 +498,19 @@ public class Game {
      * saves the current game to files on disk
      */
     private void save(Player[] p, int turn) {
-        File theDir = new File("./save");
+        File theDir = new File("./.PN/save");
         if (!theDir.exists()){
             theDir.mkdirs();
         }
 
         System.out.println("Please enter a name for this save: ");
-        String saveName = ("save/" + scn.nextLine());
+        String saveName = ("./.PN/save/" + scn.nextLine());
 
         for (int player = 0; player < p.length; player++) {
             // names to save files under
-            String saveBoard = (saveName + "_" + player + "_Board.csv");
-            String saveHBoard = (saveName + "_" + player + "_HBoard.csv");
-            String saveDetails = (saveName + "_" + player + "_Details.csv");
+            String saveBoard = (saveName + player + "Board.csv");
+            String saveHBoard = (saveName + player + "HBoard.csv");
+            String saveDetails = (saveName + player + "Details.csv");
 
             FileOutputStream outStream;
             PrintWriter pw;

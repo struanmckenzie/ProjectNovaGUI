@@ -205,12 +205,9 @@ public class Player {
         if (hint) {
             System.out.println("\n= = = = HINT = = = =");
             // wait for 10 seconds
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            System.out.print("\033[H\033[2J");
+            try { Thread.sleep(3000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
+
+            System.out.print("\033[H\033[2J");  // clear terminal
         }
     }
 }
