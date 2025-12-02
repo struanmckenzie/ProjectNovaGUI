@@ -61,7 +61,6 @@ public class Game {
         String explorer = p[0].getName();   // identify the explorer for the end game message
         int megaGuess;
         boolean hint;    // store which board to display
-        String message = ""; // message to print after guess
 
         while (true) {
             System.out.print("\033[H\033[2J");  // clear terminal
@@ -77,12 +76,11 @@ public class Game {
             System.out.print("\033[H\033[2J");  // clear terminal
             p[turn].display(hint);
 
-            megaGuess = guess(message, p[turn], -1, 0);
+            megaGuess = guess(p[turn], -1, 0);
             if (megaGuess != -1) {
                 for (int x = 0; x < p[turn].length; x++) {
-                    guess(message, p[turn], megaGuess, x);
-                    System.out.print(message);
-                }
+                    guess(p[turn], megaGuess, x);
+                    }
             }
 
             scn.nextLine(); // idk why
@@ -134,7 +132,7 @@ public class Game {
      *
      * @param p player
      */
-    private int guess(String message, Player p, int megaGuess, int iteration) {
+    private int guess(Player p, int megaGuess, int iteration) {
         int x, y;
         if (megaGuess == -1) {
             System.out.println("\n\nGuess where a creature might be");
@@ -186,7 +184,7 @@ public class Game {
                 // recurs if you've already guessed the coordinates and it's not a MegaGuess
                 if (megaGuess == -1) {
                     System.out.println("\nYou already guessed there, try again");
-                    guess(message, p, megaGuess, iteration);
+                    guess(p, megaGuess, iteration);
                 } else
                     System.out.println("\nPrevious guess");
             }
@@ -625,9 +623,9 @@ public class Game {
             System.exit(0);
             }
 
-        if (p.getHealth() <= 25) {
+        if (p.getHealth() <= 25)
             return true;
-        }
-        else return false;
+        else
+            return false;
     }
 }
