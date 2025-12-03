@@ -15,6 +15,7 @@ public class Game {
     public static void main(String[] args) {
         Game g = new Game();
         System.out.print("\033[H\033[2J");
+        System.out.flush();
         g.menu();
     }
 
@@ -22,8 +23,10 @@ public class Game {
      * menu system for the game
      */
     private void menu() {
-        System.out.print("\033[H\033[2J");  // clear terminal
+        clear();    // clear terminal
+
         System.out.print("""
+                \33[0m
                 + ------ MENU ------ +
                 | Start new game • 1 |
                 | Load game •••••• 2 |
@@ -35,15 +38,15 @@ public class Game {
 
         switch (option) {
             case "1" -> {
-                System.out.print("\033[H\033[2J");
+                clear();    // clear terminal
                 startNewGame();
             }
             case "2" -> {
-                System.out.print("\033[H\033[2J");
+                clear();    // clear terminal
                 loadGame();
             }
             case "3" -> {
-                System.out.print("\033[H\033[2J");
+                clear();    // clear terminal
                 help();
             }
             case "q", "Q" -> System.exit(0);
@@ -63,7 +66,7 @@ public class Game {
         boolean hint;    // store which board to display
 
         while (true) {
-            System.out.print("\033[H\033[2J");  // clear terminal
+            clear();    // clear terminal
             hint = checkStatus(p[turn], explorer);
 
             // only display if player needs a hint
@@ -73,27 +76,30 @@ public class Game {
                 hint = false;
             }
 
-            System.out.print("\033[H\033[2J");  // clear terminal
+            clear();  // clear terminal
             p[turn].display(hint);
+
+            //pauseMenu(p, (turn-1)*(-1));  i thought this was just annoying but it does work
 
             megaGuess = guess(p[turn], -1, 0);
             if (megaGuess != -1) {
                 for (int x = 0; x < p[turn].length; x++) {
                     guess(p[turn], megaGuess, x);
                     }
+                try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
+                clear();  // clear terminal
             }
+            else {
+                System.out.print("\33[24;56H\033[1J\33[H");
+                System.out.flush();
+            }
+            scn.nextLine(); // eat up something i dont even know anymore
 
-            scn.nextLine(); // eat up something i dont even know anymore help
-
-            try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
-
-            System.out.print("\033[H\033[2J");  // clear terminal
 
             p[turn].display(hint);
             pauseMenu(p, turn);
 
-            if (turn == 0) turn = 1;
-            else turn = 0;
+            turn = (turn-1)*(-1);
         }
 
     }
@@ -104,17 +110,27 @@ public class Game {
      */
     private void startNewGame() {
         // initialise player array and create instance of GameObjects
-        Player[] plr = new Player[2];
+        Player[] plr = {new Player(), new Player()};
         GameObjects c = new GameObjects();
 
-        for (int i = 0; i < plr.length; i++) {
-            plr[i] = new Player();
-            if (i == 0)
-                System.out.print("Enter the name of the\nMystical explorer: ");
-            else
-                System.out.print("Evil hunter: ");
-            plr[i].setName(scn.nextLine());
-        }
+        // explain who starts
+        System.out.println("""
+                The explorer starts on their quest to rescue the last
+                remaining sea creatures. The hunter who knows
+                the explorer will lead them to the best place to hunt
+                so follows discretely.
+                """);
+
+        // get name of player 1
+        System.out.print("Who will play as the\n" +
+                "\33[32mMystical explorer: ");
+        plr[0].setName("\33[32;1m" + scn.nextLine() + "\33[0m");
+
+        // get name of player 2
+        System.out.print("\33[31mEvil hunter: ");
+        plr[1].setName("\33[31;1m" + scn.nextLine() + "\33[0m");
+
+        System.out.print("\33[0m"); // reset colour
 
         // spawns game objects on each players board
         for (Player p : plr) c.spawn(p);
@@ -131,12 +147,10 @@ public class Game {
     private int guess(Player p, int megaGuess, int iteration) {
         int x, y;
         if (megaGuess == -1) {
-            System.out.println("\n\nGuess where a creature might be");
+            System.out.println("Guess where a creature might be");
 
             // get the upper limit for coordinates
-            int[] lim = new int[2];
-            lim[0] = p.length;
-            lim[1] = p.height;
+            int[] lim = {p.length, p.height};
 
             int[] coordinates = getCoordinates(lim);
             x = coordinates[0];
@@ -148,16 +162,27 @@ public class Game {
         }
 
         if (p.getHidden_board()[y][x] != '~') {
+
+            // already guessed
+            if (p.getBoard()[y][x] != '~') {
+                // recurs if you've already guessed the coordinates and it's not a MegaGuess
+                if (megaGuess == -1) {
+                    System.out.println("\nYou already guessed there, try again");
+                    guess(p, megaGuess, iteration);
+                } else
+                    System.out.println("\nPrevious guess");
+            }
+
             // bomb found
-            if (p.getHidden_board()[y][x] == 'B') {
-                System.out.println("\nYou have triggered an ocean bomb, you lose 25HP");
+            else if (p.getHidden_board()[y][x] == 'B') {
+                System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setHealth(p.getHealth() - 25);
             }
 
             // seaweed found
             else if  (p.getHidden_board()[y][x] == 'H') {
-                System.out.println("\nYou have found some medicinal seaweed, you gain 15HP");
+                System.out.println("\nYou have found some medicinal seaweed\nGain 15HP");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setHealth(p.getHealth() + 15);
             }
@@ -176,14 +201,9 @@ public class Game {
                 System.out.println("\nCreature part found!\n+5 Points");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);
-            } else {
-                // recurs if you've already guessed the coordinates and it's not a MegaGuess
-                if (megaGuess == -1) {
-                    System.out.println("\nYou already guessed there, try again");
-                    guess(p, megaGuess, iteration);
-                } else
-                    System.out.println("\nPrevious guess");
             }
+
+
 
             // detect what creature (part) was found
             switch (p.getHidden_board()[y][x]) {
@@ -263,6 +283,7 @@ public class Game {
             }
         } else {
             p.setBoard(y, x, 'X');
+            p.setHidden_board(y,x,'X');
             System.out.println("\nNo luck!");
         }
 
@@ -299,7 +320,7 @@ public class Game {
                 xy[i] = (c[i] - 65);
             }
             else {
-                System.out.println("\nError, invalid input\nTry again.");
+                System.out.println("\nInvalid input\nTry again.");
                 valid = false;
                 break;
                 }
@@ -319,7 +340,7 @@ public class Game {
         System.out.println("Please enter the name of the save: ");
         String saveName = ("./.PN/save/" + scn.nextLine());
 
-        File save = new File(saveName + "0" + "Details.csv");
+        File save = new File(saveName + "0" + "Details.txt");
         if (!save.exists()) {
             System.out.println("Save does not exist press enter to return to menu\n");
             scn.nextLine();
@@ -333,14 +354,13 @@ public class Game {
             plr[i] = new Player();
 
 
-
         int startingPlayer = 0;
 
         for (int player = 0; player < 2; player++) {
             // names of files to load
-            String loadBoard = (saveName + player + "Board.csv");
-            String loadHBoard = (saveName + player + "HBoard.csv");
-            String loadDetails = (saveName + player + "Details.csv");
+            String loadBoard = (saveName + player + "Board.txt");
+            String loadHBoard = (saveName + player + "HBoard.txt");
+            String loadDetails = (saveName + player + "Details.txt");
 
             FileReader fr;
             BufferedReader br;
@@ -451,15 +471,16 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        System.out.println("""
-                
-                
-                Press enter to continue or enter any other key for pause menu""");
+        System.out.println("\nPress enter to continue or enter any other key for pause menu");
 
         String s = scn.nextLine();
-        System.out.print("\033[H\033[2J");  // clear terminal
+
+        // clear that line
+        System.out.print("\033[2F\33[K");
+        System.out.flush();
 
         if (!s.isEmpty()) {
+            clear();  // clear terminal
             System.out.print("""
                     + ----- PAUSED -------- +
                     | Save •••••••••••••• s |
@@ -498,6 +519,7 @@ public class Game {
      * saves the current game to files on disk
      */
     private void save(Player[] p, int turn) {
+        // see if save folder exists, creates one if not
         File theDir = new File("./.PN/save");
         if (!theDir.exists()){
             theDir.mkdirs();
@@ -508,9 +530,9 @@ public class Game {
 
         for (int player = 0; player < p.length; player++) {
             // names to save files under
-            String saveBoard = (saveName + player + "Board.csv");
-            String saveHBoard = (saveName + player + "HBoard.csv");
-            String saveDetails = (saveName + player + "Details.csv");
+            String saveBoard = (saveName + player + "Board.txt");
+            String saveHBoard = (saveName + player + "HBoard.txt");
+            String saveDetails = (saveName + player + "Details.txt");
 
             FileOutputStream outStream;
             PrintWriter pw;
@@ -603,14 +625,14 @@ public class Game {
 
         for (int i = 0; i < p.height; i++) {
             for (int j = 0; j < p.length; j++) {
-                if (p.getHidden_board()[i][j] != '~')   // edit this if more things are added to board
+                if (p.getHidden_board()[i][j] != '~')
                     hiddenCount++;
             }
         }
 
         for (int i = 0; i < p.height; i++) {
             for (int j = 0; j < p.length; j++) {
-                if (p.getBoard()[i][j] != '~' && p.getBoard()[i][j] != 'X') // edit this if more things are added to board
+                if (p.getBoard()[i][j] != '~' && p.getBoard()[i][j] != 'X')
                     visableCount++;
             }
         }
@@ -636,5 +658,13 @@ public class Game {
             return true;
         else
             return false;
+    }
+
+    /**
+     * clears the terminal
+     */
+    private void clear() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }
