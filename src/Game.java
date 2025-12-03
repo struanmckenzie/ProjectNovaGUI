@@ -29,7 +29,7 @@ public class Game {
                 | Start new game • 1 |
                 | Load game •••••• 2 |
                 | View help •••••• 3 |
-                | Quit ••••••••••• q |
+                | Quit ••••••••••• Q |
                 + ------------------ +
                 """);
         String option = scn.nextLine();
@@ -146,7 +146,7 @@ public class Game {
     private int guess(Player p, int megaGuess, int iteration) {
         int x, y;
         if (megaGuess == -1) {
-            System.out.println("\nGuess where a creature might be");
+            System.out.println("Guess where a creature might be");
 
             // get the upper limit for coordinates
             int[] lim = {p.length, p.height};
@@ -477,26 +477,22 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        System.out.println("\n\n\n\nPress enter to continue or enter any other key for pause menu");
+        System.out.println("\n\nPress enter to continue or enter any other key for pause menu");
 
         String s = scn.nextLine();
-
-        // clear that line
-        System.out.print("\033[2F\33[K");
-        System.out.flush();
 
         if (!s.isEmpty()) {
             clear();  // clear terminal
             System.out.print("""
-                    + ------ PAUSED ------- +
-                    | Save •••••••••••••• s |
-                    | Quit to menu •••••• q |
-                    | Continue •••••• Enter |
-                    |                       |
-                    + --------------------- +
+                    + -------- PAUSED -------- +
+                    |                          |
+                    | Save ••••••••••••••••• S |
+                    | Quit to menu ••••••••• Q |
+                    | Continue ••••••••• Enter |
+                    + ------------------------ +
                     """);
 
-            System.out.print("\33[H\33[4;2H");
+            System.out.print("\33[H\33[2;3H");
 
             String winner = p[0].getName();
             if (p[1].getPoints() > p[0].getPoints())
@@ -504,7 +500,7 @@ public class Game {
             else if (p[0].getPoints() == p[1].getPoints())
                 winner = "Tied";
 
-            System.out.println("Winner: " + winner + "\33[2E");
+            System.out.println("Winner: " + winner + "\33[4E");
 
             String option = scn.nextLine();
 

@@ -189,9 +189,9 @@ public class Player {
 
             for (int j = 0; j < length; j++) {
                 if (hint)
-                    System.out.print("\33[44;37m" + hidden_board[i][j]);
+                    System.out.print("\33[46;30m" + hidden_board[i][j]);
                 else
-                    System.out.print("\33[44;37m" + board[i][j]);
+                    System.out.print("\33[46;30m" + board[i][j]);
                 if (j < length - 1) {
                     System.out.print(" \33[0m");
                 } else System.out.print("\33[0m ");
