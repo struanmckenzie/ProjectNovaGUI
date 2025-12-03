@@ -14,7 +14,7 @@ public class Game {
 
     public static void main(String[] args) {
         Game g = new Game();
-        System.out.print("\033[H\033[2J");
+        System.out.print("\033[H\033[2J\33[0m");
         System.out.flush();
         g.menu();
     }
@@ -24,9 +24,7 @@ public class Game {
      */
     private void menu() {
         clear();    // clear terminal
-
         System.out.print("""
-                \33[0m
                 + ------ MENU ------ +
                 | Start new game • 1 |
                 | Load game •••••• 2 |
@@ -90,7 +88,8 @@ public class Game {
                 clear();  // clear terminal
             }
             else {
-                System.out.print("\33[24;56H\033[1J\33[H");
+                //try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                System.out.print("\33[22;56H\033[1J\33[H");
                 System.out.flush();
             }
             scn.nextLine(); // eat up something i dont even know anymore
@@ -116,9 +115,9 @@ public class Game {
         // explain who starts
         System.out.println("""
                 The explorer starts on their quest to rescue the last
-                remaining sea creatures. The hunter who knows
-                the explorer will lead them to the best place to hunt
-                so follows discretely.
+                remaining underwater creatures.
+                The hunter knows the explorer will lead them to the
+                best place to hunt and decides to follow discretely...
                 """);
 
         // get name of player 1
@@ -147,7 +146,7 @@ public class Game {
     private int guess(Player p, int megaGuess, int iteration) {
         int x, y;
         if (megaGuess == -1) {
-            System.out.println("Guess where a creature might be");
+            System.out.println("\nGuess where a creature might be");
 
             // get the upper limit for coordinates
             int[] lim = {p.length, p.height};
@@ -160,6 +159,12 @@ public class Game {
             y = megaGuess;
             x = iteration;
         }
+
+        clear();    // clear terminal
+        for (int i = 0; i < (p.height+6); i++) {
+            System.out.print("\33[1B");
+        }
+
 
         if (p.getHidden_board()[y][x] != '~') {
 
@@ -436,8 +441,8 @@ public class Game {
         System.out.print("""
                 + --------------------------- HELP PAGE -------------------------------- +
                 | The aim of the game is to find all the creatures before your opponent. |
-                | If the game ends early the player with the most points wins            |
-                |  the current winner is displayed on the pause menu before quitting.    |
+                | If the game ends early the player with the most points wins and the    |
+                |  current winner is displayed on the pause menu before quitting.        |
                 |                                                                        |
                 | Enter the coordinates in the form: xy                                  |
                 |  where 'x' is the letter on the x axis                                 |
@@ -455,6 +460,7 @@ public class Game {
                 |                                                                        |
                 | Objects ID key:                                                        |
                 |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
+                |  -------+-----------+-------+----------+------+---------+------------  |
                 |     FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M        |
                 |         |           |  CC   |   OOO    |      |         |              |
                 |         |           |       |    O     |      |         |              |
@@ -471,7 +477,7 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        System.out.println("\nPress enter to continue or enter any other key for pause menu");
+        System.out.println("\n\n\n\nPress enter to continue or enter any other key for pause menu");
 
         String s = scn.nextLine();
 
@@ -482,12 +488,15 @@ public class Game {
         if (!s.isEmpty()) {
             clear();  // clear terminal
             System.out.print("""
-                    + ----- PAUSED -------- +
+                    + ------ PAUSED ------- +
                     | Save •••••••••••••• s |
                     | Quit to menu •••••• q |
                     | Continue •••••• Enter |
+                    |                       |
                     + --------------------- +
                     """);
+
+            System.out.print("\33[H\33[4;2H");
 
             String winner = p[0].getName();
             if (p[1].getPoints() > p[0].getPoints())
@@ -495,7 +504,7 @@ public class Game {
             else if (p[0].getPoints() == p[1].getPoints())
                 winner = "Tied";
 
-            System.out.println("Winning: " + winner);
+            System.out.println("Winner: " + winner + "\33[2E");
 
             String option = scn.nextLine();
 

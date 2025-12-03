@@ -167,9 +167,6 @@ public class Player {
         } else
             System.out.println("\n\33[91m= = = = HINT = = = =\33[0m");
 
-        // set background to blue
-        System.out.print("\33[96m");
-
         // print top border
         System.out.print("+ ");
         for (int i = 0; i < length * 2 + 1; i++)
@@ -179,13 +176,13 @@ public class Player {
         // print board and row numbers
         char letter = 97;
         for (int i = 0; i < height; i++) {
-            System.out.print("| " + letter + " ");
+            System.out.print("| " + letter + "\33[44m ");
             letter++;
 
             for (int j = 0; j < length; j++) {
                 if (hint)
-                    System.out.print(hidden_board[i][j] + " ");
-                else System.out.print(board[i][j] + " ");
+                    System.out.print("\33[44;37m" + hidden_board[i][j] + " \33[0m");
+                else System.out.print("\33[44;37m" + board[i][j] + " \33[0m");
             }
             System.out.println("|");
         }
