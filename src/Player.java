@@ -34,7 +34,7 @@ public class Player {
 
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
-                board[i][j] = '~';
+                board[i][j] = '+';
                 hidden_board[i][j] = '~';
                 temp_board[i][j] = '~';
             }
@@ -169,36 +169,49 @@ public class Player {
 
         // print top border
         System.out.print("+ ");
-        for (int i = 0; i < length * 2 + 1; i++)
+        for (int i = 0; i < length * 2 + 3; i++)
             System.out.print("-");
         System.out.println(" +");
 
+        // print top border
+        char l = 97;
+        System.out.print("|   ");
+        for (int i = 0; i < length; i++) {
+            System.out.print(l + " ");
+            l++;
+        }
+        System.out.println("  |");
+
         // print board and row numbers
-        char letter = 97;
+        l = 97;
         for (int i = 0; i < height; i++) {
-            System.out.print("| " + letter + "\33[44m ");
-            letter++;
+            System.out.print("| " + l + " ");
 
             for (int j = 0; j < length; j++) {
                 if (hint)
-                    System.out.print("\33[44;37m" + hidden_board[i][j] + " \33[0m");
-                else System.out.print("\33[44;37m" + board[i][j] + " \33[0m");
+                    System.out.print("\33[44;37m" + hidden_board[i][j]);
+                else
+                    System.out.print("\33[44;37m" + board[i][j]);
+                if (j < length - 1) {
+                    System.out.print(" \33[0m");
+                } else System.out.print("\33[0m ");
             }
-            System.out.println("|");
+            System.out.println(l + " |");
+            l++;
         }
 
         // print bottom axis
         System.out.print("|   ");
-        letter = 97;
+        l = 97;
         for (int i = 0; i < length; i++) {
-            System.out.print(letter + " ");
-            letter++;
+            System.out.print(l + " ");
+            l++;
         }
-        System.out.println("|");
+        System.out.println("  |");
 
         // print bottom border
         System.out.print("+ ");
-        for (int i = 0; i < length * 2 + 1; i++)
+        for (int i = 0; i < length * 2 + 3; i++)
             System.out.print("-");
         System.out.print(" +");
 

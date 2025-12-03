@@ -169,7 +169,7 @@ public class Game {
         if (p.getHidden_board()[y][x] != '~') {
 
             // already guessed
-            if (p.getBoard()[y][x] != '~') {
+            if (p.getBoard()[y][x] != '+') {
                 // recurs if you've already guessed the coordinates and it's not a MegaGuess
                 if (megaGuess == -1) {
                     System.out.println("\nYou already guessed there, try again");
@@ -202,7 +202,7 @@ public class Game {
             }
 
             // creature found
-            else if (p.getBoard()[y][x] == '~') {
+            else if (p.getBoard()[y][x] == '+') {
                 System.out.println("\nCreature part found!\n+5 Points");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);
@@ -287,8 +287,8 @@ public class Game {
                 }
             }
         } else {
-            p.setBoard(y, x, 'X');
-            p.setHidden_board(y,x,'X');
+            p.setBoard(y, x, 'x');
+            p.setHidden_board(y,x,'x');
             System.out.println("\nNo luck!");
         }
 
@@ -641,7 +641,7 @@ public class Game {
 
         for (int i = 0; i < p.height; i++) {
             for (int j = 0; j < p.length; j++) {
-                if (p.getBoard()[i][j] != '~' && p.getBoard()[i][j] != 'X')
+                if (p.getBoard()[i][j] != '+' && p.getBoard()[i][j] != 'x')
                     visableCount++;
             }
         }
