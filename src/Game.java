@@ -173,8 +173,8 @@ public class Game {
                 // recurs if you've already guessed the coordinates and it's not a MegaGuess
                 if (megaGuess == -1) {
                     clear();    // clear terminal
-                    System.out.println("\nYou already guessed there, try again");
                     p.display(false);
+                    System.out.println("You already guessed there, try again");
                     guess(p, megaGuess, iteration);
                 } else
                     System.out.println("\nPrevious guess");
