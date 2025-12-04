@@ -81,7 +81,7 @@ public class GameObjects {
 
             boolean canPlace = false;
 
-            if (p.getHidden_board()[y][x] == '~') {
+            if (p.getHidden_board()[y][x] == '+') {
                 p.getTemp_board()[y][x] = obj;
                 canPlace = true;
             }
@@ -122,7 +122,7 @@ public class GameObjects {
 
             int count = 0;
             for (int x = startCol; x < endCol; x++) {
-                if (p.getHidden_board()[startRow][x] == '~') {
+                if (p.getHidden_board()[startRow][x] == '+') {
                     if (x == startCol + 1 || x == startCol + 2) {
                         p.getTemp_board()[startRow][x] = 'F'; // saves layout to temp before valid to save time
                     }
@@ -172,7 +172,7 @@ public class GameObjects {
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++) {
 
-                    if (p.getHidden_board()[y][x] == '~') {
+                    if (p.getHidden_board()[y][x] == '+') {
                         if ((x == startCol + 1 || x == startCol + 2) && (y == startRow + 1 || y == startRow + 2)) {
                             p.temp_board[y][x] = 'C';
                         }
@@ -218,7 +218,7 @@ public class GameObjects {
             int count = 0;
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++) {
-                    if (p.getHidden_board()[y][x] == '~') {
+                    if (p.getHidden_board()[y][x] == '+') {
                         if (x != startCol && x != endCol-1) {
                             p.temp_board[y][x] = 'S';
                         }
@@ -265,7 +265,7 @@ public class GameObjects {
             for (int y = startRow; y < endRow; y++)
                 for (int x = startCol; x < endCol; x++) {
 
-                    if (p.getHidden_board()[y][x] == '~') {
+                    if (p.getHidden_board()[y][x] == '+') {
                         if (y == startRow + 1 && x == startCol + 2)
                             p.getTemp_board()[y][x] = 'O';  // print top bit
                         else if (y == startRow + 2 && (x != startCol && x != endCol - 1))
@@ -295,6 +295,6 @@ public class GameObjects {
         for (int i = 0; i < p.height; i++)
             for (int j = 0; j < p.length - 1; j++)
                 if (p.getHidden_board()[i][j] == 'b')
-                    p.setHidden_board(i,j,'~');
+                    p.setHidden_board(i,j,'+');
     }
 }

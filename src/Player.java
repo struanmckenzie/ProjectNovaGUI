@@ -9,6 +9,7 @@
 public class Player {
     // FIELDS
     private String name;
+    public boolean explorer;
     private int points;
     private int health;
     public int length;
@@ -23,6 +24,7 @@ public class Player {
      */
     public Player() {
         name = "John";
+        explorer = false;
         points = 0;
         health = 100;
         height = 16;
@@ -34,8 +36,8 @@ public class Player {
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
                 board[i][j] = '+';
-                hidden_board[i][j] = '~';
-                temp_board[i][j] = '~';
+                hidden_board[i][j] = '+';
+                temp_board[i][j] = '+';
             }
     }
 

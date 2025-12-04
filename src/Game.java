@@ -69,13 +69,16 @@ public class Game {
                 best place to hunt and decides to follow discretely...
                 """);
 
+        // set explorer to explorer
+        plr[0].explorer = true;
+
         // get name of player 1
         System.out.print("Who will play as the\n" +
-                "\33[32mMystical explorer: ");
+                "\33[32mMystical Explorer: ");
         plr[0].setName("\33[32;1m" + scn.nextLine() + "\33[0m");
 
         // get name of player 2
-        System.out.print("\33[31mEvil hunter: ");
+        System.out.print("\33[31mEvil Hunter: ");
         plr[1].setName("\33[31;1m" + scn.nextLine() + "\33[0m");
 
         System.out.print("\33[0m"); // reset colour
@@ -92,11 +95,11 @@ public class Game {
     private void loadGame() {
         // get name of save and make sure it exists
         System.out.println("Please enter the name of the save: ");
-        String saveName = ("./.ProjectNova/save/" + scn.nextLine());
+        String saveName = ("./.ProjectNova/" + scn.nextLine() + "/");
 
         File save = new File(saveName + "0" + "Details.txt");
         if (!save.exists()) {
-            System.out.println("Save does not exist press enter to return to menu\n");
+            System.out.println("Save does not exist press ENTER to return to menu\n");
             scn.nextLine();
             menu();
         }
@@ -128,6 +131,7 @@ public class Game {
                 plr[player].setName(br.readLine());
                 plr[player].setPoints(Integer.parseInt(br.readLine()));
                 plr[player].setHealth(Integer.parseInt(br.readLine()));
+                plr[player].explorer = Boolean.parseBoolean(br.readLine());
 
                 String nextLine = br.readLine();
                 if (nextLine != null) {
@@ -213,7 +217,7 @@ public class Game {
                 |         |           |       |    O     |      |         |              |
                 + ---------------------------------------------------------------------- +
                 
-                Press enter to continue
+                Press ENTER to continue
                 """);
 
         scn.nextLine();
@@ -261,6 +265,7 @@ public class Game {
             }
             scn.nextLine(); // eat up something i dont even know anymore
 
+            checkStatus(p, turn, explorer);
 
             p[turn].display(hint);
             pauseMenu(p, turn);
@@ -297,23 +302,21 @@ public class Game {
             System.out.print("\33[1B");
         }
 
+        // already guessed
+        if (p.getBoard()[y][x] != '+') {
+            // recurs if you've already guessed the coordinates and it's not a MegaGuess
+            if (megaGuess == -1) {
+                clear();    // clear terminal
+                p.display(false);
+                System.out.println("You already guessed there, try again");
+                guess(p, megaGuess, iteration);
+            } else
+                System.out.println("\nPrevious guess");
+        }
 
-        if (p.getHidden_board()[y][x] != '~') {
-
-            // already guessed
-            if (p.getBoard()[y][x] != '+') {
-                // recurs if you've already guessed the coordinates and it's not a MegaGuess
-                if (megaGuess == -1) {
-                    clear();    // clear terminal
-                    p.display(false);
-                    System.out.println("You already guessed there, try again");
-                    guess(p, megaGuess, iteration);
-                } else
-                    System.out.println("\nPrevious guess");
-            }
-
+        if (p.getHidden_board()[y][x] != '+') {
             // bomb found
-            else if (p.getHidden_board()[y][x] == 'B') {
+            if (p.getHidden_board()[y][x] == 'B') {
                 System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setHealth(p.getHealth() - 25);
@@ -427,7 +430,6 @@ public class Game {
             }
         } else {
             p.setBoard(y, x, 'x');
-            p.setHidden_board(y,x,'x');
             System.out.println("\nNo luck!");
         }
 
@@ -480,7 +482,7 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        System.out.println("\n\nPress enter to continue or enter any other key for pause menu");
+        System.out.println("\n\nPress ENTER to continue or enter any other key for pause menu");
 
         String s = scn.nextLine();
 
@@ -490,35 +492,34 @@ public class Game {
                     + -------- PAUSED -------- +
                     | Save ••••••••••••••••• S |
                     | Quit to menu ••••••••• Q |
-                    | Continue ••••••••• Enter |
+                    | Continue ••••••••• ENTER |
                     + ------------------------ +
                     """);
             String option = scn.nextLine();
 
             if (!option.isEmpty()) {
                 switch (option) {
-                    case "s", "S" -> {
-                        System.out.println();
-                        save(p, turn);
-                    }
+                    case "s", "S" -> save(p, turn);
                     case "q", "Q" -> {
+                        clear(); // clear terminal
+                        // print summary
                         System.out.println("+ -------");
-
                         if (p[1].getPoints() > p[0].getPoints())
-                            System.out.println("Winner: " + p[1].getName());
+                            System.out.println("| Winner:\n| " + p[1].getName());
                         else if (p[0].getPoints() > p[1].getPoints())
-                            System.out.println("Winner:" + p[0].getName());
+                            System.out.println("| Winner:\n| " + p[0].getName());
                         else
-                            System.out.println("Game is tied");
+                            System.out.println("| Game is tied");
 
+                        System.out.println("+ -------");
                         for (Player player : p) {
-                            System.out.println("|" + player.getName());
+                            System.out.println("| " + player.getName());
                             System.out.println("| Points: " + player.getPoints());
                             System.out.println("| Health: " + player.getHealth());
                             System.out.println("+ -------");
                         }
 
-                        System.out.println("Q to quit or ENTER to continue");
+                        System.out.println("\nQ to quit or ENTER to continue");
                         if (!scn.nextLine().isEmpty()) menu();
                     }
                 }
@@ -530,14 +531,15 @@ public class Game {
      * saves the current game to files on disk
      */
     private void save(Player[] p, int turn) {
+        clear();
+        System.out.println("Please enter a name for this save: ");
+        String saveName = ("./.ProjectNova/" + scn.nextLine() + "/");
+
         // see if save folder exists, creates one if not
-        File theDir = new File("./.ProjectNova/save");
+        File theDir = new File(saveName);
         if (!theDir.exists()){
             theDir.mkdirs();
         }
-
-        System.out.println("Please enter a name for this save: ");
-        String saveName = ("./.ProjectNova/save/" + scn.nextLine());
 
         for (int player = 0; player < p.length; player++) {
             // names to save files under
@@ -582,7 +584,8 @@ public class Game {
                         p[player].height + "\n" +
                         p[player].getName() + "\n" +
                         p[player].getPoints() + "\n" +
-                        p[player].getHealth());
+                        p[player].getHealth() + "\n" +
+                        p[player].explorer);
 
                 // mark the player who should start
                 if (player != turn)
@@ -596,7 +599,7 @@ public class Game {
 
         System.out.println("""
             
-            Press enter to continue or enter any other key for main menu""");
+            Press ENTER to continue or enter any other key for main menu""");
 
         String s = scn.nextLine();
 
@@ -614,22 +617,22 @@ public class Game {
      */
     private boolean checkStatus(Player[] p, int turn, String explorer) {
         // check if the player has died
-        if (p[turn].getHealth() == 0) {
-            System.out.println("\nYou died :(");
-            if (p[turn].getName().equals(explorer))
+        if (p[turn].getHealth() <= 0) {
+            System.out.println("You died :(");
+            if (p[turn].explorer)
                 System.out.println("""
-                        You failed to save the rest of the creatures from the hunter.
-                        The hunter continued on and managed to hunt down
+                        You failed to save the rest of the creatures from the \33[31;1mEvil Hunter\33[0m
+                        who continued on and managed to hunt down
                         all the creatures and wins by default.""");
             else
                 System.out.println("""
                         You failed to hunt all the creatures down.
-                        The explorer went on to save the rest
+                        The \33[32;1mMystical Explorer\33[0m went on to save the rest
                         of the creatures and wins by default.""");
 
             System.out.println("\n+ -------");
             for (Player player : p) {
-                System.out.println("|" + player.getName());
+                System.out.println("| " + player.getName());
                 System.out.println("| Points: " + player.getPoints());
                 System.out.println("| Health: " + player.getHealth());
                 System.out.println("+ -------");
@@ -637,7 +640,7 @@ public class Game {
 
             System.out.println("\nENTER to exit");
             scn.nextLine();
-            System.exit(0);
+            menu();
         }
 
         // check if player has found all the creatures
@@ -646,7 +649,7 @@ public class Game {
 
         for (int i = 0; i < p[turn].height; i++) {
             for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] != '~')
+                if (p[turn].getHidden_board()[i][j] != '+')
                     hiddenCount++;
             }
         }
@@ -660,19 +663,26 @@ public class Game {
 
         // check to see if all the creatures have been found
         if (hiddenCount == visableCount) {
-            if (p[turn].getName().equals(explorer))
+            if (p[turn].explorer)
                 System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        You managed to save the creatures from the hunter.
-                        Hunter, you failed your mission. Do better next time.""");
+                        As the \33[32;1mMystical Explorer\33[0m you managed to save all the creatures from the hunter.
+                        """);
             else
                 System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        You have hunted all the creatures to extinction.
-                        Explorer, you failed to save the creatures. Do better next time.""");
+                        As the \33[31;1mEvil Hunter\33[0m you have managed to hunt all the creatures to extinction.
+                        """);
 
-            System.out.println("\nPress enter to exit");
+            System.out.println("\n+ -------");
+            for (Player player : p) {
+                System.out.println("| " + player.getName());
+                System.out.println("| Points: " + player.getPoints());
+                System.out.println("| Health: " + player.getHealth());
+                System.out.println("+ -------");
+            }
+
+            System.out.println("\nPress ENTER to exit");
             scn.nextLine();
-            scn.nextLine();
-            System.exit(0);
+            menu();
             }
 
         return p[turn].getHealth() <= 25;
