@@ -172,6 +172,7 @@ public class Game {
             if (p.getBoard()[y][x] != '+') {
                 // recurs if you've already guessed the coordinates and it's not a MegaGuess
                 if (megaGuess == -1) {
+                    clear();    // clear terminal
                     System.out.println("\nYou already guessed there, try again");
                     p.display(false);
                     guess(p, megaGuess, iteration);
