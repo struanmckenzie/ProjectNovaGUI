@@ -15,13 +15,13 @@ public class Player {
     public int height;
     private char[][] board;
     private char[][] hidden_board;
-    char[][] temp_board;
+    public char[][] temp_board;
 
     // CONSTRUCTOR
     /**
      * default constructor
      */
-    Player() {
+    public Player() {
         name = "John";
         points = 0;
         health = 100;
@@ -30,7 +30,6 @@ public class Player {
         board = new char[height][length];
         hidden_board = new char[height][length];
         temp_board = new char[height][length];
-
 
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
@@ -47,9 +46,7 @@ public class Player {
      * @param longitude x asis value
      * @param part creature part identifier
      */
-    public void setBoard(int latitude, int longitude, char part) {
-        board[latitude][longitude] = part;
-    }
+    public void setBoard(int latitude, int longitude, char part) { board[latitude][longitude] = part; }
 
     /**
      * gets board
@@ -108,24 +105,13 @@ public class Player {
      * @param x axis value
      * @param c character specific part should be set to
      */
-    public void setHidden_board(int y, int x, char c) {
-        hidden_board[y][x] = c;
-    }
+    public void setHidden_board(int y, int x, char c) { hidden_board[y][x] = c; }
 
     /**
      * gets hidden board
      * @return hidden board
      */
     public char[][] getHidden_board() { return hidden_board; }
-
-    /**
-     * sets new temporary board layout
-     * @param newTBoard new hidden board
-     */
-    public void setTemp_board(char[][] newTBoard) {
-        for (int i = 0; i < (height); i++)
-            System.arraycopy(newTBoard[i], 0, temp_board[i], 0, newTBoard[0].length);
-    }
 
     /**
      * gets temporary board
@@ -147,11 +133,9 @@ public class Player {
         """);
 
         String h = Game.scn.nextLine();
-        if (h.isEmpty())
-            hint = false;
 
-        else
-            points = points - 10;
+        if (h.isEmpty()) hint = false;
+        else points = points - 10;
 
         return hint;
     }
@@ -192,9 +176,11 @@ public class Player {
                     System.out.print("\33[46;30m" + hidden_board[i][j]);
                 else
                     System.out.print("\33[46;30m" + board[i][j]);
-                if (j < length - 1) {
+
+                if (j < length - 1)
                     System.out.print(" \33[0m");
-                } else System.out.print("\33[0m ");
+                else
+                    System.out.print("\33[0m ");
             }
             System.out.println(l + " |");
             l++;

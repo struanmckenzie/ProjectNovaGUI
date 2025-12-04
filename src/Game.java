@@ -25,12 +25,12 @@ public class Game {
     private void menu() {
         clear();    // clear terminal
         System.out.print("""
-                + ------ MENU ------ +
-                | Start new game • 1 |
-                | Load game •••••• 2 |
-                | View help •••••• 3 |
-                | Quit ••••••••••• Q |
-                + ------------------ +
+                + ------- MENU ------- +
+                | Start new game ••• 1 |
+                | Load game •••••••• 2 |
+                | View help •••••••• 3 |
+                | Quit ••••••••••••• Q |
+                + -------------------- +
                 """);
         String option = scn.nextLine();
 
@@ -48,59 +48,8 @@ public class Game {
                 help();
             }
             case "q", "Q" -> System.exit(0);
-
             default -> menu();
         }
-    }
-
-    /**
-     * for actual gameplay
-     * @param p player array
-     */
-    private void play(Player[] p) {
-        int turn = 0; // player whose turn it is
-        String explorer = p[0].getName();   // identify the explorer for the end game message
-        int megaGuess;
-        boolean hint;    // store which board to display
-
-        while (true) {
-            clear();    // clear terminal
-            hint = checkStatus(p[turn], explorer);
-
-            // only display if player needs a hint
-            if (hint) {
-                hint = p[turn].hint(hint);
-                p[turn].display(hint);
-                hint = false;
-            }
-
-            clear();  // clear terminal
-            p[turn].display(hint);
-
-            //pauseMenu(p, (turn-1)*(-1));  i thought this was just annoying but it does work
-
-            megaGuess = guess(p[turn], -1, 0);
-            if (megaGuess != -1) {
-                for (int x = 0; x < p[turn].length; x++) {
-                    guess(p[turn], megaGuess, x);
-                    }
-                try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
-                clear();  // clear terminal
-            }
-            else {
-                //try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-                System.out.print("\33[22;56H\033[1J\33[H");
-                System.out.flush();
-            }
-            scn.nextLine(); // eat up something i dont even know anymore
-
-
-            p[turn].display(hint);
-            pauseMenu(p, turn);
-
-            turn = (turn-1)*(-1);
-        }
-
     }
 
     /**
@@ -137,6 +86,189 @@ public class Game {
         play(plr);
     }
 
+    /**
+     * loads a previously saved game
+     */
+    private void loadGame() {
+        // get name of save and make sure it exists
+        System.out.println("Please enter the name of the save: ");
+        String saveName = ("./.ProjectNova/save/" + scn.nextLine());
+
+        File save = new File(saveName + "0" + "Details.txt");
+        if (!save.exists()) {
+            System.out.println("Save does not exist press enter to return to menu\n");
+            scn.nextLine();
+            menu();
+        }
+
+        // initialise player array
+        Player[] plr = new Player[2];
+
+        for (int i = 0; i < plr.length; i++)
+            plr[i] = new Player();
+
+        int startingPlayer = 0;
+
+        for (int player = 0; player < 2; player++) {
+            // names of files to load
+            String loadBoard = (saveName + player + "Board.txt");
+            String loadHBoard = (saveName + player + "HBoard.txt");
+            String loadDetails = (saveName + player + "Details.txt");
+
+            FileReader fr;
+            BufferedReader br;
+
+            // load details
+            try {
+                fr = new FileReader(loadDetails);
+                br = new BufferedReader(fr);
+
+                plr[player].length = Integer.parseInt(br.readLine());
+                plr[player].height = Integer.parseInt(br.readLine());
+                plr[player].setName(br.readLine());
+                plr[player].setPoints(Integer.parseInt(br.readLine()));
+                plr[player].setHealth(Integer.parseInt(br.readLine()));
+
+                String nextLine = br.readLine();
+                if (nextLine != null) {
+                    startingPlayer = Integer.parseInt(nextLine);
+                }
+
+                // load board
+                fr = new FileReader(loadBoard);
+                br = new BufferedReader(fr);
+
+                nextLine = br.readLine();
+                int i = 0;
+                while(nextLine != null) {
+                    for (int j = 0; j < plr[player].length; j++)
+                        plr[player].setBoard(i, j, nextLine.toCharArray()[j]);
+
+                    nextLine = br.readLine();
+                    i++;
+                }
+                br.close();
+
+                // load hidden board
+                fr = new FileReader(loadHBoard);
+                br = new BufferedReader(fr);
+
+                nextLine = br.readLine();
+                i = 0;
+                while (nextLine != null) {
+                    for (int j = 0; j < plr[player].length; j++)
+                        plr[player].setHidden_board(i, j, nextLine.toCharArray()[j]);
+
+                    nextLine = br.readLine();
+                    i++;
+                }
+                br.close();
+
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // make sure the correct player starts first
+        if (startingPlayer != 0) {
+            Player tmp = plr[0];
+            plr[0] = plr[1];
+            plr[1] = tmp;
+        }
+
+        // play game
+        play(plr);
+    }
+
+    /**
+     * prints a help/instructions page
+     */
+    private void help() {
+        System.out.print("""
+                + --------------------------- HELP PAGE -------------------------------- +
+                | The aim of the game is to find all the creatures before your opponent. |
+                | If the game ends early the player with the most points wins and the    |
+                |  current winner is displayed on the pause menu before quitting.        |
+                |                                                                        |
+                | Enter the coordinates in the form: xy                                  |
+                |  where 'x' is the letter on the x axis                                 |
+                |  and 'y' is the letter on the y axis                                   |
+                |                                                                        |
+                | 5 points are earned for every part of a creature found                 |
+                | 5 bonus points are earned once a whole creature is found               |
+                | Bombs take away 25HP                                                   |
+                | Seaweed adds 15HP (effectively acts as a shield if you have 100HP)     |
+                | MegaGuess reveals a whole row                                          |
+                |                                                                        |
+                | If you are under 25HP you will be give the opportunity to buy a hint   |
+                |  with your points which will reveal the board for 10 seconds.          |
+                |  Use this time wisely                                                  |
+                |                                                                        |
+                | Objects ID key:                                                        |
+                |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
+                |  -------+-----------+-------+----------+------+---------+------------  |
+                |     FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M        |
+                |         |           |  CC   |   OOO    |      |         |              |
+                |         |           |       |    O     |      |         |              |
+                + ---------------------------------------------------------------------- +
+                
+                Press enter to continue
+                """);
+
+        scn.nextLine();
+        menu();
+    }
+
+    /**
+     * for actual gameplay
+     * @param p player array
+     */
+    private void play(Player[] p) {
+        int turn = 0; // player whose turn it is
+        String explorer = p[0].getName();   // identify the explorer for the end game message
+        int megaGuess;
+        boolean hint;    // store which board to display
+
+        while (true) {
+            clear();    // clear terminal
+            hint = checkStatus(p, turn, explorer);
+
+            // only display if player needs a hint
+            if (hint) {
+                hint = p[turn].hint(hint);
+                p[turn].display(hint);
+                hint = false;
+            }
+
+            clear();  // clear terminal
+            p[turn].display(hint);
+
+            //pauseMenu(p, (turn-1)*(-1));  i thought this was just annoying but it does work
+
+            megaGuess = guess(p[turn], -1, 0);
+            if (megaGuess != -1) {
+                for (int x = 0; x < p[turn].length; x++) {
+                    guess(p[turn], megaGuess, x);
+                }
+                try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
+                clear();  // clear terminal
+            }
+            else {
+                //try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                System.out.print("\33[22;56H\033[1J\33[H");
+                System.out.flush();
+            }
+            scn.nextLine(); // eat up something i dont even know anymore
+
+
+            p[turn].display(hint);
+            pauseMenu(p, turn);
+
+            turn = (turn-1)*(-1);
+        }
+
+    }
 
     /**
      * gets a players guess for where a creature might be
@@ -212,7 +344,12 @@ public class Game {
 
 
 
-            // detect what creature (part) was found
+            /*
+            detect what creature (part) was found
+
+            I know there is definitely a more efficient way of doing this but I do not
+            have the time to come up with one so I apologise to whoever has to read and mark this.
+             */
             switch (p.getHidden_board()[y][x]) {
                 case 'F' -> {
                     if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
@@ -221,11 +358,11 @@ public class Game {
                     }
                 }
                 case 'S' -> {
-                    while (p.getBoard()[y][x] == 'S')   // get to the start of the found parts of the snake
-                        x--;
+                    // get to the start of the found parts of the snake
+                    while (p.getBoard()[y][x] == 'S') x--;
 
                     int count = 0;  // store the number of snake parts found
-                    x++;    // compensate for while taking one away
+                    x++;    // compensate for the while loop taking away an extra 1
                     while (p.getBoard()[y][x] == 'S') {
                         count++;
                         x++;
@@ -340,142 +477,6 @@ public class Game {
     }
 
     /**
-     * loads a previously saved game
-     */
-    private void loadGame() {
-        // get name of save and make sure it exists
-        System.out.println("Please enter the name of the save: ");
-        String saveName = ("./.PN/save/" + scn.nextLine());
-
-        File save = new File(saveName + "0" + "Details.txt");
-        if (!save.exists()) {
-            System.out.println("Save does not exist press enter to return to menu\n");
-            scn.nextLine();
-            menu();
-        }
-
-        // initialise player array
-        Player[] plr = new Player[2];
-
-        for (int i = 0; i < plr.length; i++)
-            plr[i] = new Player();
-
-
-        int startingPlayer = 0;
-
-        for (int player = 0; player < 2; player++) {
-            // names of files to load
-            String loadBoard = (saveName + player + "Board.txt");
-            String loadHBoard = (saveName + player + "HBoard.txt");
-            String loadDetails = (saveName + player + "Details.txt");
-
-            FileReader fr;
-            BufferedReader br;
-
-            try {
-                // load details
-                fr = new FileReader(loadDetails);
-                br = new BufferedReader(fr);
-
-                plr[player].length = Integer.parseInt(br.readLine());
-                plr[player].height = Integer.parseInt(br.readLine());
-                plr[player].setName(br.readLine());
-                plr[player].setPoints(Integer.parseInt(br.readLine()));
-                plr[player].setHealth(Integer.parseInt(br.readLine()));
-
-                String nextLine = br.readLine();
-                if (nextLine != null) {
-                    startingPlayer = Integer.parseInt(nextLine);
-                }
-
-                // load board
-                fr = new FileReader(loadBoard);
-                br = new BufferedReader(fr);
-
-                nextLine = br.readLine();
-                int i = 0;
-                while(nextLine != null) {
-                    for (int j = 0; j < plr[player].length; j++)
-                        plr[player].setBoard(i, j, nextLine.toCharArray()[j]);
-
-                    nextLine = br.readLine();
-                    i++;
-                }
-                br.close();
-
-                // load hidden board
-                fr = new FileReader(loadHBoard);
-                br = new BufferedReader(fr);
-
-                nextLine = br.readLine();
-                i = 0;
-                while (nextLine != null) {
-                    for (int j = 0; j < plr[player].length; j++)
-                        plr[player].setHidden_board(i, j, nextLine.toCharArray()[j]);
-
-                    nextLine = br.readLine();
-                    i++;
-                }
-                br.close();
-
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        // make sure the correct player starts first
-        if (startingPlayer != 0) {
-            Player tmp = plr[0];
-            plr[0] = plr[1];
-            plr[1] = tmp;
-        }
-
-        // play game
-        play(plr);
-    }
-
-    /**
-     * prints a help/instructions page
-     */
-    private void help() {
-        // print help page
-        System.out.print("""
-                + --------------------------- HELP PAGE -------------------------------- +
-                | The aim of the game is to find all the creatures before your opponent. |
-                | If the game ends early the player with the most points wins and the    |
-                |  current winner is displayed on the pause menu before quitting.        |
-                |                                                                        |
-                | Enter the coordinates in the form: xy                                  |
-                |  where 'x' is the letter on the x axis                                 |
-                |  and 'y' is the letter on the y axis                                   |
-                |                                                                        |
-                | 5 points are earned for every part of a creature found                 |
-                | 5 bonus points are earned once a whole creature is found               |
-                | Bombs take away 25HP                                                   |
-                | Seaweed adds 15HP (effectively acts as a shield if you have 100HP)     |
-                | MegaGuess reveals a whole row                                          |
-                |                                                                        |
-                | If you are under 25HP you will be give the opportunity to buy a hint   |
-                |  with your points which will reveal the board for 10 seconds.          |
-                |  Use this time wisely                                                  |
-                |                                                                        |
-                | Objects ID key:                                                        |
-                |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
-                |  -------+-----------+-------+----------+------+---------+------------  |
-                |     FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M        |
-                |         |           |  CC   |   OOO    |      |         |              |
-                |         |           |       |    O     |      |         |              |
-                + ---------------------------------------------------------------------- +
-                
-                Press enter to continue
-                """);
-
-        scn.nextLine();
-        menu();
-    }
-
-    /**
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
@@ -487,23 +488,11 @@ public class Game {
             clear();  // clear terminal
             System.out.print("""
                     + -------- PAUSED -------- +
-                    |                          |
                     | Save ••••••••••••••••• S |
                     | Quit to menu ••••••••• Q |
                     | Continue ••••••••• Enter |
                     + ------------------------ +
                     """);
-
-            System.out.print("\33[H\33[2;3H");
-
-            String winner = p[0].getName();
-            if (p[1].getPoints() > p[0].getPoints())
-                winner = p[1].getName();
-            else if (p[0].getPoints() == p[1].getPoints())
-                winner = "Tied";
-
-            System.out.println("Winner: " + winner + "\33[4E");
-
             String option = scn.nextLine();
 
             if (!option.isEmpty()) {
@@ -513,13 +502,28 @@ public class Game {
                         save(p, turn);
                     }
                     case "q", "Q" -> {
-                        System.out.println();
-                        menu();
+                        System.out.println("+ -------");
+
+                        if (p[1].getPoints() > p[0].getPoints())
+                            System.out.println("Winner: " + p[1].getName());
+                        else if (p[0].getPoints() > p[1].getPoints())
+                            System.out.println("Winner:" + p[0].getName());
+                        else
+                            System.out.println("Game is tied");
+
+                        for (Player player : p) {
+                            System.out.println("|" + player.getName());
+                            System.out.println("| Points: " + player.getPoints());
+                            System.out.println("| Health: " + player.getHealth());
+                            System.out.println("+ -------");
+                        }
+
+                        System.out.println("Q to quit or ENTER to continue");
+                        if (!scn.nextLine().isEmpty()) menu();
                     }
                 }
             }
         }
-        // game continues
     }
 
     /**
@@ -527,13 +531,13 @@ public class Game {
      */
     private void save(Player[] p, int turn) {
         // see if save folder exists, creates one if not
-        File theDir = new File("./.PN/save");
+        File theDir = new File("./.ProjectNova/save");
         if (!theDir.exists()){
             theDir.mkdirs();
         }
 
         System.out.println("Please enter a name for this save: ");
-        String saveName = ("./.PN/save/" + scn.nextLine());
+        String saveName = ("./.ProjectNova/save/" + scn.nextLine());
 
         for (int player = 0; player < p.length; player++) {
             // names to save files under
@@ -603,55 +607,65 @@ public class Game {
     }
 
     /**
-     * checks to see if the win condition has been met
+     * checks to see if win/lose condition has been met
      * @param p player object
      * @param explorer used to identify which player has won
+     * @return whether the player should be offered a hint
      */
-    private boolean checkStatus(Player p, String explorer) {
-
+    private boolean checkStatus(Player[] p, int turn, String explorer) {
         // check if the player has died
-        // and act accordingly if they have
-        if (p.getHealth() == 0) {
+        if (p[turn].getHealth() == 0) {
             System.out.println("\nYou died :(");
-            if (p.getName().equals(explorer))
+            if (p[turn].getName().equals(explorer))
                 System.out.println("""
                         You failed to save the rest of the creatures from the hunter.
-                        The hunter continued on and managed to hunt down all the creatures and wins by default.""");
+                        The hunter continued on and managed to hunt down
+                        all the creatures and wins by default.""");
             else
                 System.out.println("""
                         You failed to hunt all the creatures down.
-                        The explorer went on to save the rest of the creatures and wins by default.""");
+                        The explorer went on to save the rest
+                        of the creatures and wins by default.""");
 
-            System.out.println("\nPress enter to exit");
+            System.out.println("\n+ -------");
+            for (Player player : p) {
+                System.out.println("|" + player.getName());
+                System.out.println("| Points: " + player.getPoints());
+                System.out.println("| Health: " + player.getHealth());
+                System.out.println("+ -------");
+            }
+
+            System.out.println("\nENTER to exit");
             scn.nextLine();
             System.exit(0);
         }
 
+        // check if player has found all the creatures
         int hiddenCount = 0;  // number of creature parts in hidden board
         int visableCount = 0;  // number of creature parts in visable board
 
-        for (int i = 0; i < p.height; i++) {
-            for (int j = 0; j < p.length; j++) {
-                if (p.getHidden_board()[i][j] != '~')
+        for (int i = 0; i < p[turn].height; i++) {
+            for (int j = 0; j < p[turn].length; j++) {
+                if (p[turn].getHidden_board()[i][j] != '~')
                     hiddenCount++;
             }
         }
 
-        for (int i = 0; i < p.height; i++) {
-            for (int j = 0; j < p.length; j++) {
-                if (p.getBoard()[i][j] != '+' && p.getBoard()[i][j] != 'x')
+        for (int i = 0; i < p[turn].height; i++) {
+            for (int j = 0; j < p[turn].length; j++) {
+                if (p[turn].getBoard()[i][j] != '+' && p[turn].getBoard()[i][j] != 'x')
                     visableCount++;
             }
         }
 
         // check to see if all the creatures have been found
         if (hiddenCount == visableCount) {
-            if (p.getName().equals(explorer))
-                System.out.println("\n" + p.getName() + " is the winner!\n" + """
+            if (p[turn].getName().equals(explorer))
+                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
                         You managed to save the creatures from the hunter.
                         Hunter, you failed your mission. Do better next time.""");
             else
-                System.out.println("\n" + p.getName() + " is the winner!\n" + """
+                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
                         You have hunted all the creatures to extinction.
                         Explorer, you failed to save the creatures. Do better next time.""");
 
@@ -661,10 +675,7 @@ public class Game {
             System.exit(0);
             }
 
-        if (p.getHealth() <= 25)
-            return true;
-        else
-            return false;
+        return p[turn].getHealth() <= 25;
     }
 
     /**
