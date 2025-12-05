@@ -212,8 +212,8 @@ public class Game {
                 | Objects ID key:                                                        |
                 |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
                 |  -------+-----------+-------+----------+------+---------+------------  |
-                |     FF  |   SSSS    |  CC   |    O     |  B   |    H    |     M        |
-                |         |           |  CC   |   OOO    |      |         |              |
+                |    F F  |  S S S S  |  C C  |    O     |  B   |    H    |     M        |
+                |         |           |  C C  |  O O O   |      |         |              |
                 |         |           |       |    O     |      |         |              |
                 + ---------------------------------------------------------------------- +
                 
