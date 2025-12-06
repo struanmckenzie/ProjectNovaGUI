@@ -195,6 +195,8 @@ public class Game {
                 | If the game ends early the player with the most points wins and the    |
                 |  current winner is displayed on the pause menu before quitting.        |
                 |                                                                        |
+                | You can save and quit from the pause menu.                             |
+                |                                                                        |
                 | Enter the coordinates in the form: xy                                  |
                 |  where 'x' is the letter on the x axis                                 |
                 |  and 'y' is the letter on the y axis                                   |
@@ -236,7 +238,7 @@ public class Game {
 
         while (true) {
             clear();    // clear terminal
-            hint = checkStatus(p, turn, explorer);
+            hint = checkStatus(p, turn);
 
             // only display if player needs a hint
             if (hint) {
@@ -265,7 +267,7 @@ public class Game {
             }
             scn.nextLine(); // eat up something i dont even know anymore
 
-            checkStatus(p, turn, explorer);
+            checkStatus(p, turn);
 
             p[turn].display(hint);
             pauseMenu(p, turn);
@@ -611,10 +613,9 @@ public class Game {
     /**
      * checks to see if win/lose condition has been met
      * @param p player object
-     * @param explorer used to identify which player has won
      * @return whether the player should be offered a hint
      */
-    private boolean checkStatus(Player[] p, int turn, String explorer) {
+    private boolean checkStatus(Player[] p, int turn) {
         // check if the player has died
         if (p[turn].getHealth() <= 0) {
             System.out.println("You died :(");
@@ -648,9 +649,11 @@ public class Game {
 
         for (int i = 0; i < p[turn].height; i++) {
             for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] != '+') // THIS BIT HERE NEEDS CHANGED TO THAT ONLY THE CREATURES ARE COUNTED
+                if (p[turn].getHidden_board()[i][j] == 'F' || p[turn].getHidden_board()[i][j] == 'C' ||
+                        p[turn].getHidden_board()[i][j] == 'S' || p[turn].getHidden_board()[i][j] == 'O')
                     hiddenCount++;
-                if (p[turn].getBoard()[i][j] != '+' && p[turn].getBoard()[i][j] != 'x')
+                if (p[turn].getBoard()[i][j] == 'F' || p[turn].getBoard()[i][j] == 'C' ||
+                        p[turn].getBoard()[i][j] == 'S' || p[turn].getBoard()[i][j] == 'O')
                     visableCount++;
             }
         }
