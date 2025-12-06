@@ -313,8 +313,7 @@ public class Game {
             } else
                 System.out.println("\nPrevious guess");
         }
-
-        if (p.getHidden_board()[y][x] != '+') {
+        else if (p.getHidden_board()[y][x] != '+') {
             // bomb found
             if (p.getHidden_board()[y][x] == 'B') {
                 System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
@@ -356,7 +355,7 @@ public class Game {
             switch (p.getHidden_board()[y][x]) {
                 case 'F' -> {
                     if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
-                        System.out.println("\nFish found!\n+5 Bonus Points");
+                        System.out.println(" Fish found! +5 Bonus Points");
                         p.setPoints(p.getPoints() + 5);
                     }
                 }
@@ -372,7 +371,7 @@ public class Game {
                     }
 
                     if (count == 4) {
-                        System.out.println("\nSea Snake found!\n+5 Bonus Points");
+                        System.out.println(" Sea Snake found! +5 Bonus Points");
                         p.setPoints(p.getPoints() + 5);
                     }
                 }
@@ -380,22 +379,22 @@ public class Game {
                     // these are separated out so its (kinda) easier to read
                     if (p.getBoard()[y][x+1] == 'C') {
                         if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
-                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            System.out.println(" Crab found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
 
                         } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x + 1] == 'C') {
-                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            System.out.println(" Crab found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
                         }
                     }
 
                     else if (p.getBoard()[y][x-1] == 'C')
                         if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x - 1] == 'C') {
-                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            System.out.println(" Crab found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
 
                         } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x - 1] == 'C') {
-                            System.out.println("\nCrab found!\n+5 Bonus Points");
+                            System.out.println(" Crab found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
                         }
                 }
@@ -403,7 +402,7 @@ public class Game {
                     // starting from the centre
                     if (p.getBoard()[y-1][x] == 'O' && p.getBoard()[y+1][x] == 'O' &&
                             p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x-1] == 'O') {
-                        System.out.println("\nStarfish found!\n+5 Bonus Points");
+                        System.out.println(" Starfish found! +5 Bonus Points");
                         p.setPoints(p.getPoints() + 5);
                     }
                     // now we know it doesn't start in the centre
@@ -412,7 +411,7 @@ public class Game {
                              p.getBoard()[y][x-1] == 'O' && p.getBoard()[y][x-2] == 'O') {
                         if (p.getBoard()[y-1][x-1] == 'O' && p.getBoard()[y+1][x-1] == 'O' ||
                                 p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y+1][x+1] == 'O') {
-                            System.out.println("\nStarfish found!\n+5 Bonus Points");
+                            System.out.println(" Starfish found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
                         }
                     }
@@ -422,7 +421,7 @@ public class Game {
                             p.getBoard()[y+1][x] == 'O' && p.getBoard()[y+2][x] == 'O') {
                         if (p.getBoard()[y+1][x-1] == 'O' && p.getBoard()[y+1][x+1] == 'O' ||
                                 p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y-1][x-1] == 'O') {
-                            System.out.println("\nStarfish found!\n+5 Bonus Points");
+                            System.out.println(" Starfish found! +5 Bonus Points");
                             p.setPoints(p.getPoints() + 5);
                         }
                     }
@@ -482,7 +481,7 @@ public class Game {
      * asks the player if they want to enter the pause menu
      */
     private void pauseMenu(Player[] p, int turn) {
-        System.out.println("\n\nPress ENTER to continue or enter any other key for pause menu");
+        System.out.println("\n\n\n\nPress ENTER to continue or enter any other key for pause menu");
 
         String s = scn.nextLine();
 
@@ -649,13 +648,8 @@ public class Game {
 
         for (int i = 0; i < p[turn].height; i++) {
             for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] != '+')
+                if (p[turn].getHidden_board()[i][j] != '+') // THIS BIT HERE NEEDS CHANGED TO THAT ONLY THE CREATURES ARE COUNTED
                     hiddenCount++;
-            }
-        }
-
-        for (int i = 0; i < p[turn].height; i++) {
-            for (int j = 0; j < p[turn].length; j++) {
                 if (p[turn].getBoard()[i][j] != '+' && p[turn].getBoard()[i][j] != 'x')
                     visableCount++;
             }
