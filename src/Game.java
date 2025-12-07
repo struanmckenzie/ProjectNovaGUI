@@ -254,14 +254,12 @@ public class Game {
 
             megaGuess = guess(p[turn], -1, 0);
             if (megaGuess != -1) {
+                clear();  // clear terminal
                 for (int x = 0; x < p[turn].length; x++) {
                     guess(p[turn], megaGuess, x);
                 }
-                try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
-                clear();  // clear terminal
             }
             else {
-                //try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 System.out.print("\33[22;56H\033[1J\33[H");
                 System.out.flush();
             }
