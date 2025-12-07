@@ -126,17 +126,25 @@ public class Player {
         System.out.println("Points: " + getPoints());
         System.out.println("Health: " + getHealth());
 
-        System.out.print("""
-        \33[91m
-        Your health is under 25HP!!\33[91m
-        You have the opportunity to spend 10 points to receive a hint.
-        The hint reveals all for 10 seconds. Use this time wisely.
-        To buy this hint enter any character, to decline press enter.
-        """);
+        if (getPoints() > 9)
+            System.out.print("""
+            \33[91m
+            Your health is under 25HP!!\33[91m
+            You have the opportunity to spend 10 points to receive a hint.
+            The hint reveals all for 10 seconds. Use this time wisely.
+            To buy this hint enter any character, to decline press ENTER.
+            """);
+        else
+            System.out.print("""
+                    \33[91m
+                    Your health is under 25HP!!\33[91m
+                    Unfortunately you're poor. It costs 10 points for a hint so
+                    you don't have enough to get one. Unlucky.
+                    Press ENTER to continue.""");
 
         String h = Game.scn.nextLine();
 
-        if (h.isEmpty()) hint = false;
+        if (h.isEmpty() || getPoints() < 10) hint = false;
         else points = points - 10;
 
         return hint;
@@ -207,9 +215,9 @@ public class Player {
         System.out.println("\33[0m");
 
         if (hint) {
-            System.out.println("\n\33[91m= = = = HINT = = = =\33[0m");
+            System.out.println("\33[91m= = = = HINT = = = =\33[0m");
             // wait for 10 seconds
-            try { Thread.sleep(3000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
+            try { Thread.sleep(10000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }  // sleep
 
             System.out.print("\033[H\033[2J");  // clear terminal
             System.out.flush();
