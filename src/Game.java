@@ -6,16 +6,20 @@
  * @version 2.7
  */
 
+// import libraries
 import java.io.*;
 import java.util.Scanner;
 
 public class Game {
+    // scanner available to all classes
     public static final Scanner scn = new Scanner(System.in);
 
+    /**
+     * main method - creates instance of Game object and starts menu
+     * @param args command line args. unused
+     */
     public static void main(String[] args) {
         Game g = new Game();
-        System.out.print("\033[H\033[2J\33[0m");
-        System.out.flush();
         g.menu();
     }
 
@@ -69,23 +73,23 @@ public class Game {
                 best place to hunt and decides to follow discretely...
                 """);
 
-        // set explorer to explorer
+        // set first player to explorer
         plr[0].explorer = true;
 
-        // get name of player 1
+        // get names of players
         System.out.print("Who will play as the\n" +
                 "\33[32mMystical Explorer: ");
         plr[0].setName("\33[32;1m" + scn.nextLine() + "\33[0m");
 
-        // get name of player 2
         System.out.print("\33[31mEvil Hunter: ");
         plr[1].setName("\33[31;1m" + scn.nextLine() + "\33[0m");
 
         System.out.print("\33[0m"); // reset colour
 
-        // spawns game objects on each players board
+        // call GameObjects to place objects on each players' board
         for (Player p : plr) c.spawn(p);
 
+        // start gameplay
         play(plr);
     }
 
@@ -113,7 +117,7 @@ public class Game {
         int startingPlayer = 0;
 
         for (int player = 0; player < 2; player++) {
-            // names of files to load
+            // declare names of files to load
             String loadBoard = (saveName + player + "Board.txt");
             String loadHBoard = (saveName + player + "HBoard.txt");
             String loadDetails = (saveName + player + "Details.txt");
@@ -232,8 +236,7 @@ public class Game {
      */
     private void play(Player[] p) {
         int turn = 0; // player whose turn it is
-        String explorer = p[0].getName();   // identify the explorer for the end game message
-        int megaGuess;
+        int megaGuess;  // y coordinate MegaGuess is on
         boolean hint;    // store which board to display
 
         while (true) {
@@ -250,7 +253,7 @@ public class Game {
             clear();  // clear terminal
             p[turn].display(hint);
 
-            //pauseMenu(p, (turn-1)*(-1));  i thought this was just annoying but it does work
+            //pauseMenu(p, (turn-1)*(-1));  i think this is just annoying, but it does work
 
             megaGuess = guess(p[turn], -1, 0);
             if (megaGuess != -1) {
@@ -270,6 +273,7 @@ public class Game {
             p[turn].display(hint);
             pauseMenu(p, turn);
 
+            // switch to next player's turn
             turn = (turn-1)*(-1);
         }
 
@@ -288,6 +292,7 @@ public class Game {
             // get the upper limit for coordinates
             int[] lim = {p.length, p.height};
 
+            // get coordinates
             int[] coordinates = getCoordinates(lim);
             x = coordinates[0];
             y = coordinates[1];
@@ -456,7 +461,7 @@ public class Game {
             if (c.length != 2) System.out.println("\nInvalid input\nTry again");
         } while (c.length != 2);
 
-
+        // convert chars into coordinates on grid
         for (int i = 0; i < 2; i++) {
             if (c[i] >= 97 && (c[i] < (lim[i] + 97))) {   // for input of a lower case letter
                 xy[i] = (c[i] - 97);
@@ -471,7 +476,7 @@ public class Game {
                 }
         }
 
-        // run method again if input was invalid
+        // recur if input was invalid
         if (!valid)
             xy = getCoordinates(lim);
         return xy;

@@ -121,6 +121,11 @@ public class Player {
      */
     public char[][] getTemp_board() { return temp_board; }
 
+    /**
+     * displays hint option
+     * @param hint tells display method if it should display the hint
+     * @return hint true or false
+     */
     public boolean hint(boolean hint) {
         System.out.println("Player: " + getName());
         System.out.println("Points: " + getPoints());

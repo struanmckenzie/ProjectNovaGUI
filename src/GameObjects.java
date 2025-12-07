@@ -50,18 +50,7 @@ public class GameObjects {
         for (int i = 0; i < megaGuess; i++) {
             placeSingleTileObj(p, 'M');
         }
-
-
-
     }
-
-
-
-
-
-
-    // mega guess
-
 
     /**
      * places objects
@@ -86,7 +75,6 @@ public class GameObjects {
                 canPlace = true;
             }
 
-            // can it
             if (canPlace) {
                 p.setHidden_board(p.getTemp_board());
                 valid = true;
@@ -94,7 +82,6 @@ public class GameObjects {
         }
     }
 
-    // creatures
     /**
      * places a fish on the player's board
      * @param p player
@@ -134,7 +121,7 @@ public class GameObjects {
                     break;
             }
 
-            // test to make sure the lil fish can fit in the random space
+            // test to make sure the fish can fit in the random space
             if (count == area) {
                 p.setHidden_board(p.getTemp_board());
                 valid = true;
