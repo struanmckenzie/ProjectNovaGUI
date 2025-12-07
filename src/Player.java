@@ -177,8 +177,8 @@ public class Player {
         System.out.println("  |");
 
         // print board and row numbers
-        l = 97;
-        for (int i = 0; i < height; i++) {
+        l = 'p';
+        for (int i = height-1; i >= 0; i--) {
             System.out.print("| " + l + " ");
 
             for (int j = 0; j < length; j++) {
@@ -193,7 +193,7 @@ public class Player {
                     System.out.print("\33[0m ");
             }
             System.out.println(l + " |");
-            l++;
+            l--;
         }
 
         // print bottom axis
