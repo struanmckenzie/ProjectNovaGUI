@@ -62,7 +62,7 @@ public class Game {
      */
     private void startNewGame() {
         // initialise player array and create instance of GameObjects
-        Player[] plr = {new Player(), new Player()};
+        Player[] plr = { new Player(), new Player() };
         GameObjects c = new GameObjects();
 
         // explain who starts

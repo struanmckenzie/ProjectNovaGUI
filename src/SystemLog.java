@@ -13,9 +13,9 @@ public class SystemLog<T> {
         log = new ArrayList<>();
     }
 
-    public void addToLog(T data) { log.add(data); }
+    public void add(T data) { log.add(data); }
 
-    public void displayLog() {
+    public void display() {
         for (T t : log) {
             System.out.println(t);
         }

@@ -1,10 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class MainMenu extends JFrame {
-
+public class MainMenu {
     // Fields
     public JFrame frame;
+
     /**
      * Constructor
      */
@@ -14,8 +14,9 @@ public class MainMenu extends JFrame {
     }
 
     private void launchUI() {
-        setTitle("Project Nova");
-        setLocationRelativeTo(null);
+        // configure window frame
+        frame.setTitle("Project Nova");
+        frame.setLocationRelativeTo(null);
 
         JPanel buttonPanel = new JPanel(new GridLayout(4,1));
 
@@ -26,11 +27,17 @@ public class MainMenu extends JFrame {
         JButton quit = new JButton("Quit");
 
         // action listeners
-        newGame.addActionListener(l -> System.out.println("Start game"));
-        loadGame.addActionListener(l -> System.out.println("Load game"));
-        help.addActionListener(l -> System.out.println("Help page"));
+        newGame.addActionListener(l -> {
+            LaunchGUI.systemMessages.add("New game");
+            new NewGameScreen(frame);
+        });
+
+        loadGame.addActionListener(l -> LaunchGUI.systemMessages.add("Load game"));
+        help.addActionListener(l -> LaunchGUI.systemMessages.add("Help page"));
         quit.addActionListener(l -> {
-             new JOptionPane("Quit game?");
+            // confirm quit
+            if (JOptionPane.showConfirmDialog(frame, "Quit game?") == 0)
+                System.exit(0);
         });
 
         // add buttons to panel
@@ -39,8 +46,8 @@ public class MainMenu extends JFrame {
         buttonPanel.add(help);
         buttonPanel.add(quit);
 
-        add(buttonPanel);
+        frame.add(buttonPanel);
 
-        setVisible(true);
+        frame.setVisible(true);
     }
 }
