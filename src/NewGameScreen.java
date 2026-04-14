@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 
 public class NewGameScreen {
@@ -24,15 +25,17 @@ public class NewGameScreen {
         JPanel mainPanel = new JPanel(new GridLayout(3,1));
 
         // initial message to players
-        JTextArea plot = new JTextArea("""
-                The explorer starts on their quest to rescue the last
-                remaining underwater creatures.
-                The hunter knows the explorer will lead them to the
-                best place to hunt and decides to follow discretely...
-                """);
-        plot.setFont(new Font("sans", Font.ITALIC, 20));
+        JTextArea plot = new JTextArea("The explorer starts on their quest to rescue " +
+                "the last remaining underwater creatures. The hunter knows the explorer " +
+                "will lead them to the best place to hunt and decides to follow discretely... ");
 
+        plot.setFont(new Font("sans", Font.ITALIC, 20));
+        plot.setWrapStyleWord(true);
+        plot.setLineWrap(true);
         plot.setEditable(false);
+
+        plot.setBorder(styledBorder());
+
         mainPanel.add(plot);
 
         // get player name buttons
@@ -46,6 +49,7 @@ public class NewGameScreen {
             if (player[0].getName().isEmpty() | player[1].getName().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please enter names first");
             } else {
+                System.out.println(getClass() + ": start game");
                 new StartGame(frame, player);
             }
         });
@@ -53,7 +57,6 @@ public class NewGameScreen {
         mainPanel.add(start);
 
         frame.add(mainPanel);
-
 
         // set first player to explorer
         player[0].explorer = true;
@@ -66,19 +69,46 @@ public class NewGameScreen {
         frame.setVisible(true);
     }
 
-    private static JPanel getPanel(Player[] player) {
+    private JPanel getPanel(Player[] player) {
         JPanel buttonPanel = new JPanel(new GridLayout(1,2));
 
         JButton playerOneName = new JButton("Player One");
-        playerOneName.addActionListener(l ->
-            player[0].setName(JOptionPane.showInputDialog("Enter the name of the Mystical Explorer")));
+        playerOneName.addActionListener(l -> {
+            String name = JOptionPane.showInputDialog(null, "Enter the name of the Mystical Explorer",
+                    "Mystical Explorer", JOptionPane.INFORMATION_MESSAGE);
+
+            if (name != null) {
+                player[0].setName(name);
+                System.out.println(getClass() + ": set p1 name: " + name);
+            }
+        });
 
         JButton playerTwoName = new JButton("Player Two");
-        playerTwoName.addActionListener(l ->
-            player[1].setName(JOptionPane.showInputDialog("Enter the name of the Evil Hunter")));
+        playerTwoName.addActionListener(l -> {
+            String name = JOptionPane.showInputDialog(null, "Enter the name of the Evil Hunter",
+                    "Evil Hunter", JOptionPane.INFORMATION_MESSAGE);
+
+            if (name != null) {
+                player[1].setName(name);
+                System.out.println(getClass() + ": set p2 name: " + name);
+            }
+        });
 
         buttonPanel.add(playerOneName);
         buttonPanel.add(playerTwoName);
         return buttonPanel;
+    }
+
+    /**
+     * style borders for any component
+     * @return styled border
+     */
+    private static Border styledBorder() {
+        return BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createBevelBorder(0),
+                        BorderFactory.createLineBorder(Color.GRAY))
+        );
     }
 }

@@ -23,7 +23,7 @@ public class Player {
      * default constructor
      */
     public Player() {
-        name = "John";
+        name = "";
         explorer = false;
         points = 0;
         health = 100;
