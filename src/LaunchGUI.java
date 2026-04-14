@@ -12,7 +12,7 @@ public class LaunchGUI {
             public void windowClosing(WindowEvent e) {
                 // SAVE GAME
 
-
+                System.out.println("Game Closed");
                 frame.dispose();
             }
         });
