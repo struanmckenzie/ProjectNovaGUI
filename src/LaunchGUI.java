@@ -5,11 +5,6 @@ import java.awt.event.WindowEvent;
 
 public class LaunchGUI {
     private final JFrame frame = new JFrame();
-    public static SystemLog<String> playerOneActions;
-    public static SystemLog<String> playerTwoActions;
-    public static SystemLog<String> events;
-    public static SystemLog<String> errors;
-    public static SystemLog<String> systemMessages;
 
     void main() {
         frame.addWindowListener(new WindowAdapter() {

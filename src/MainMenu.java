@@ -3,13 +3,15 @@ import java.awt.*;
 
 public class MainMenu {
     // Fields
-    public JFrame frame;
+    private JFrame frame;
 
     /**
      * Constructor
      */
     public MainMenu(JFrame frame) {
         this.frame = frame;
+
+        frame.getContentPane().removeAll();
         launchUI();
     }
 
@@ -28,13 +30,13 @@ public class MainMenu {
 
         // action listeners
         newGame.addActionListener(l -> {
-            LaunchGUI.systemMessages.add("New game");
+            System.out.println(getClass() + ": new game");
             new NewGameScreen(frame);
         });
-
-        loadGame.addActionListener(l -> LaunchGUI.systemMessages.add("Load game"));
-        help.addActionListener(l -> LaunchGUI.systemMessages.add("Help page"));
+        loadGame.addActionListener(l -> System.out.println(getClass() + ": load game"));
+        help.addActionListener(l -> System.out.println(getClass() + ": help screen"));
         quit.addActionListener(l -> {
+            System.out.println(getClass() + ": quit game");
             // confirm quit
             if (JOptionPane.showConfirmDialog(frame, "Quit game?") == 0)
                 System.exit(0);
@@ -48,6 +50,8 @@ public class MainMenu {
 
         frame.add(buttonPanel);
 
+        frame.repaint();
+        frame.revalidate();
         frame.setVisible(true);
     }
 }
