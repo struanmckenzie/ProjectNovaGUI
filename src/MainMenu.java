@@ -44,7 +44,10 @@ public class MainMenu {
             new NewGameScreen(frame);
         });
         loadGame.addActionListener(l -> System.out.println(getClass() + ": load game"));
-        help.addActionListener(l -> System.out.println(getClass() + ": help screen"));
+        help.addActionListener(l -> {
+            System.out.println(getClass() + ": help screen");
+            new HelpScreen(frame);
+        });
         quit.addActionListener(l -> {
             System.out.println(getClass() + ": quit game");
             // confirm quit
