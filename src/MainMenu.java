@@ -25,23 +25,9 @@ public class MainMenu {
         JPanel mainPanel = new JPanel(new GridLayout(1,3));
 
         // Panel containing image of explorer
-        JPanel leftImage = new JPanel();
-
-        // get image of explorer
-        try {
-            ImageIcon rawImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("Images/Explorer.jpg")));
-            Image image = rawImage.getImage();
-            Image scaledImage = image.getScaledInstance(frame.getWidth() / 3, -1, Image.SCALE_SMOOTH);
-            ImageIcon explorerImage = new ImageIcon(scaledImage);
-            JLabel explorerImageLabel = new JLabel(explorerImage);
-            leftImage.add(explorerImageLabel);
-
-            System.out.println(getClass() + ": successfully loaded explorer image");
-        } catch (NullPointerException e) {
-            System.out.println(getClass() + ": failed to load explorer image");
-        }
-
-        mainPanel.add(leftImage);
+        JPanel leftImagePanel = new JPanel();
+        loadImage(leftImagePanel, "Images/Explorer.jpg");
+        mainPanel.add(leftImagePanel);
 
         // panel to hold buttons
         JPanel buttonPanel = new JPanel(new GridLayout(4,1));
@@ -75,30 +61,34 @@ public class MainMenu {
         mainPanel.add(buttonPanel);
 
         // Panel containing image of explorer
-        JPanel rightImage = new JPanel();
-
-        try {
-            // get image of explorer
-            ImageIcon rawImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("Images/Hunter.jpg")));
-            Image image = rawImage.getImage();
-
-            // scale image with panel
-            Image scaledImage = image.getScaledInstance(frame.getWidth() / 3, -1, Image.SCALE_SMOOTH);
-            ImageIcon hunterImage = new ImageIcon(scaledImage);
-            JLabel hunterImageLabel = new JLabel(hunterImage);
-            rightImage.add(hunterImageLabel);
-
-            System.out.println(getClass() + ": successfully loaded hunter image");
-        } catch (NullPointerException e) {
-            System.out.println(getClass() + ": failed to load hunter image");
-        }
-
-        mainPanel.add(rightImage);
+        JPanel rightImagePanel = new JPanel();
+        loadImage(rightImagePanel, "Images/Hunter.jpg");
+        mainPanel.add(rightImagePanel);
 
         frame.add(mainPanel);
 
         frame.repaint();
         frame.revalidate();
         frame.setVisible(true);
+    }
+
+    /**
+     * load image in to panel
+     * @param imagePanel panel that will contain the image
+     * @param location of image in files
+     */
+    private void loadImage(JPanel imagePanel, String location) {
+        try {
+            ImageIcon rawImage = new ImageIcon(Objects.requireNonNull(getClass().getResource(location)));
+            Image image = rawImage.getImage();
+            Image scaledImage = image.getScaledInstance(frame.getWidth() / 3, -1, Image.SCALE_SMOOTH);
+            ImageIcon finalImage = new ImageIcon(scaledImage);
+            JLabel finalImageLabel = new JLabel(finalImage);
+            imagePanel.add(finalImageLabel);
+
+            System.out.println(getClass() + ": successfully loaded " + location);
+        } catch (NullPointerException e) {
+            System.out.println(getClass() + ": failed to load " + location);
+        }
     }
 }

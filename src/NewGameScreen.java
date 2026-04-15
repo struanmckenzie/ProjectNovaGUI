@@ -69,6 +69,11 @@ public class NewGameScreen {
         frame.setVisible(true);
     }
 
+    /**
+     * create panel that will get details of each player
+     * @param player array of players
+     * @return completed panel
+     */
     private JPanel getPanel(Player[] player) {
         JPanel buttonPanel = new JPanel(new GridLayout(1,2));
 
