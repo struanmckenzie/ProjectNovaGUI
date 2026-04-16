@@ -281,7 +281,7 @@ public class PlayGame {
 
                 // mark the player who should start
                 if (player != turn)
-                    pw.println(player);
+                    pw.println("not null");
                 pw.close();
 
             } catch (FileNotFoundException e) {

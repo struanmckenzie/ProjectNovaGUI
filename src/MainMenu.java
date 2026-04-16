@@ -170,9 +170,10 @@ public class MainMenu {
                 player[turn].setHealth(Integer.parseInt(br.readLine()));
                 player[turn].isExplorer = Boolean.parseBoolean(br.readLine());
 
+                // get the player who should start
                 String nextLine = br.readLine();
                 if (nextLine != null) {
-                    startingPlayer = Integer.parseInt(nextLine);
+                    if (nextLine.equals("not null")) startingPlayer = turn;
                 }
 
                 // load board
@@ -212,14 +213,7 @@ public class MainMenu {
             }
         }
 
-        // make sure the correct player starts first
-        if (startingPlayer != 0) {
-            Player tmp = player[0];
-            player[0] = player[1];
-            player[1] = tmp;
-        }
-
         // play game
-        new PlayGame(frame, player, 1);
+        new PlayGame(frame, player, startingPlayer);
     }
 }
