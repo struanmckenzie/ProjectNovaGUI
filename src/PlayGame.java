@@ -16,9 +16,6 @@ public class PlayGame {
         this.player = player;
         this.turn = turn;
 
-        // clear frame ready for game board
-        frame.getContentPane().removeAll();
-
         frame.setTitle("Project Nova - " + player[turn].getName());
         startUI();
     }
@@ -52,21 +49,21 @@ public class PlayGame {
         frame.setJMenuBar(menuBar);
 
         // main panel setup
-        JPanel mainPanel = new JPanel(new GridLayout(2, 0));
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         // ================ player stats panel =============
         JPanel stats = getStats(turn);
-        mainPanel.add(stats);
+        mainPanel.add(stats, BorderLayout.NORTH);
 
         // ================ MAIN GAME =======================
 
         hint = checkStatus(player, turn);
 
         // game panel
-        JPanel buttonBoard = new JPanel(new GridLayout(16, 16));
+        JPanel buttonBoard = new JPanel(new GridLayout(Config.BOARD_SIZE, Config.BOARD_SIZE));
 
-        for (int i = 15; i >= 0; i--) {
-            for (int j = 0; j < 16; j++) {
+        for (int i = Config.BOARD_SIZE - 1; i >= 0; i--) {     // y coordinate iterator
+            for (int j = 0; j < Config.BOARD_SIZE; j++) {  // x coordinate iterator
                 if (hint)
                     buttonBoard.add(styledButton(String.valueOf(player[turn].getHidden_board()[i][j]), j, i));
                 else
@@ -74,7 +71,7 @@ public class PlayGame {
 
             }
         }
-        mainPanel.add(buttonBoard);
+        mainPanel.add(buttonBoard, BorderLayout.CENTER);
 
         frame.add(mainPanel);
 
@@ -88,8 +85,11 @@ public class PlayGame {
         if (!charToDisplay.equals("+"))
             btn.setEnabled(false);
 
+        // set size of buttons to size of frame / number of coordinates and make them square
+        int square = frame.getWidth() / Config.BOARD_SIZE;
+        btn.setMaximumSize(new Dimension());
         btn.addActionListener(l -> {
-            System.out.println("Clicked button: " + x + y); // !!!!!!!!! debugginbg whit
+            System.out.println("Clicked button: " + x +", "+ y);    // TURN INTO SYSTEM MESSAGE
             megaGuess = guess(player[turn], -1, 0, x, y);
             if (megaGuess != -1) {
                 for (int z = 0; z < player[turn].length; z++) {
@@ -111,7 +111,7 @@ public class PlayGame {
      * @return stats panel
      */
     private JPanel getStats(int turn) {
-        JPanel stats = new JPanel(new GridLayout(1, 4));
+        JPanel stats = new JPanel(new GridLayout(0, 4));
 
         // initialise player stats fields
         JTextField name = new JTextField(), points = new JTextField(), health = new JTextField();

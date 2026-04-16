@@ -11,23 +11,12 @@ public class LaunchGUI {
             @Override
             public void windowClosing(WindowEvent e) {
                 // SAVE GAME
+                // using names of player 1, player2 as name
 
                 System.out.println("Game Closed");
                 frame.dispose();
             }
         });
-
-        /*
-         * gets the dimensions of the screen
-         * sets the window size to be a percentage of it
-         */
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        // set window size to percentage of screen size
-        int width = (int) screenSize.getWidth() * 3/5;
-        int height = (int) screenSize.getHeight() * 3/5;
-
-        frame.setSize(new Dimension(width, height));
 
         new MainMenu(frame);
     }

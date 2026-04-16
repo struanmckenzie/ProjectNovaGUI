@@ -13,6 +13,19 @@ public class MainMenu {
         this.frame = frame;
 
         frame.getContentPane().removeAll();
+
+        /*
+         * gets the dimensions of the screen
+         * sets the window size to be a percentage of it
+         */
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        // set window size to percentage of screen size
+        int height, width;
+        width = (int) screenSize.getWidth() * 3/5;
+        height = (int) screenSize.getHeight() * 3/5;
+
+        frame.setSize(new Dimension(width, height));
         frame.setTitle("Main Menu");
         launchUI();
     }
@@ -25,7 +38,7 @@ public class MainMenu {
         frame.setLocationRelativeTo(null);
 
         // Main panel to contain sub-panels
-        JPanel mainPanel = new JPanel(new GridLayout(1,3));
+        JPanel mainPanel = new JPanel(new GridLayout(0,3));
 
         // Panel containing image of explorer
         JPanel leftImagePanel = new JPanel();
@@ -33,7 +46,7 @@ public class MainMenu {
         mainPanel.add(leftImagePanel);
 
         // panel to hold buttons
-        JPanel buttonPanel = new JPanel(new GridLayout(4,1));
+        JPanel buttonPanel = new JPanel(new GridLayout(4,0));
 
         // buttons
         JButton newGame = new JButton("New Game");
