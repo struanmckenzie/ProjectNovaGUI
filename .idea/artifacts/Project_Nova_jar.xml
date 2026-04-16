@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Project Nova:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Project_Nova_jar</output-path>
-    <root id="archive" name="Project Nova.jar">
-      <element id="module-output" name="ProjectNovaGUI" />
-    </root>
-  </artifact>
-</component>
