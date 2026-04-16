@@ -21,7 +21,7 @@ public class PlayGame {
         this.turn = turn;
 
         frame.getContentPane().removeAll();
-
+        frame.setSize(780,750);
         frame.setTitle("Project Nova - " + player[turn].getName());
         startUI();
     }
@@ -113,8 +113,6 @@ public class PlayGame {
 
             checkStatus(player, turn);
 
-            JOptionPane.showMessageDialog(null, "Next player");
-
             // flip player turn
             turn = (turn - 1) * -1;
 
@@ -146,11 +144,6 @@ public class PlayGame {
         stats.add(name);
         stats.add(points);
         stats.add(health);
-
-        // next player button
-        JButton next = new JButton("Next Player");
-        next.addActionListener(l -> new PlayGame(frame, player, (turn-1)*(-1)));
-        stats.add(next);
 
         stats.setSize(new Dimension(frame.getWidth(), frame.getHeight() / 10));
 
@@ -190,11 +183,11 @@ public class PlayGame {
 
         for (int i = 0; i < p[turn].height; i++) {
             for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] == 'F' || p[turn].getHidden_board()[i][j] == 'C' ||
-                        p[turn].getHidden_board()[i][j] == 'S' || p[turn].getHidden_board()[i][j] == 'O')
+                if (p[turn].getHidden_board()[i][j] == Config.FISH_TILE || p[turn].getHidden_board()[i][j] == Config.CRAB_TILE ||
+                        p[turn].getHidden_board()[i][j] == Config.SNAKE_TILE || p[turn].getHidden_board()[i][j] == Config.STARFISH_TILE)
                     hiddenCount++;
-                if (p[turn].getBoard()[i][j] == 'F' || p[turn].getBoard()[i][j] == 'C' ||
-                        p[turn].getBoard()[i][j] == 'S' || p[turn].getBoard()[i][j] == 'O')
+                if (p[turn].getBoard()[i][j] == Config.FISH_TILE || p[turn].getBoard()[i][j] == Config.CRAB_TILE ||
+                        p[turn].getBoard()[i][j] == Config.SNAKE_TILE || p[turn].getBoard()[i][j] == Config.STARFISH_TILE)
                     visableCount++;
             }
         }
@@ -298,148 +291,164 @@ public class PlayGame {
     /**
      * gets a players guess for where a creature might be
      *
-     * @param p player
+     * @param currentPlayer player
      */
-    private int guess(Player p, int megaGuess, int iteration, int x, int y) {
+    private int guess(Player currentPlayer, int megaGuess, int iteration, int x, int y) {
         if (megaGuess != -1) {
             y = megaGuess;
             x = iteration;
         }
 
-        for (int i = 0; i < (p.height+6); i++) {
-            System.out.print("\33[1B");
-        }
-
-        // already guessed
-        if (p.getBoard()[y][x] != Config.UNDISCOVERED_TILE) {
-            // recurs if you've already guessed the coordinates and it's not a MegaGuess
-            if (megaGuess == -1) {
-                p.display(false);
-                System.out.println("You already guessed there, try again");
-                guess(p, megaGuess, iteration, x, y);
-            } else
-                System.out.println("\nPrevious guess");
-        }
-        else if (p.getHidden_board()[y][x] != Config.UNDISCOVERED_TILE) {
+         if (currentPlayer.getHidden_board()[y][x] != Config.UNDISCOVERED_TILE) {
             // bomb found
-            if (p.getHidden_board()[y][x] == 'B') {
-                System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
-                p.setBoard(y, x, p.getHidden_board()[y][x]);
-                p.setHealth(p.getHealth() - 25);
+            if (currentPlayer.getHidden_board()[y][x] == Config.BOMB_TILE) {
+                popup("You triggered an ocean bomb\nLose " + Config.BOMB_STRENGTH + "HP");
+                currentPlayer.setBoard(y, x, Config.BOMB_TILE);
+                currentPlayer.setHealth(currentPlayer.getHealth() - Config.BOMB_STRENGTH);
             }
 
             // seaweed found
-            else if  (p.getHidden_board()[y][x] == 'H') {
-                System.out.println("\nYou have found some medicinal seaweed\nGain 15HP");
-                p.setBoard(y, x, p.getHidden_board()[y][x]);
-                p.setHealth(p.getHealth() + 15);
+            else if  (currentPlayer.getHidden_board()[y][x] == Config.WEED_TILE) {
+                popup("You have found some medicinal seaweed\nGain " + Config.WEED_STRENGTH + "HP");
+                currentPlayer.setBoard(y, x, Config.WEED_TILE);
+                currentPlayer.setHealth(currentPlayer.getHealth() + Config.WEED_STRENGTH);
             }
 
             // MegaGuess found
-            else if (p.getHidden_board()[y][x] == 'M') {
+            else if (currentPlayer.getHidden_board()[y][x] == Config.MEGAGUESS_TILE) {
                 if  (megaGuess == -1) {
-                    System.out.println("You found a MegaGuess tile - this reveals all the tiles in the same row.");
-                    p.setBoard(y, x, p.getHidden_board()[y][x]);
+                    popup("You found a MegaGuess tile\nthis reveals all the tiles in the same row.");
+                    currentPlayer.setBoard(y, x, currentPlayer.getHidden_board()[y][x]);
                     return y;
-                } else System.out.println("\nMegaGuess tile");
+                }
             }
 
             // creature found
-            else if (p.getBoard()[y][x] == Config.UNDISCOVERED_TILE) {
-                System.out.println("\nCreature part found!\n+5 Points");
-                p.setBoard(y, x, p.getHidden_board()[y][x]);
-                p.setPoints(p.getPoints() + 5);
+            // this is a lazy way to do it. works because the tile will only
+            // remain "undiscovered" if it is a creature part
+            else if (currentPlayer.getBoard()[y][x] == Config.UNDISCOVERED_TILE) {
+                popup("Creature part found!\n+" + Config.CREATURE_PART_POINTS +" points");
+                currentPlayer.setBoard(y, x, currentPlayer.getHidden_board()[y][x]);
+                currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_PART_POINTS);
             }
+
 
 
 
             /*
             detect what creature (part) was found
-
-            I know there is definitely a more efficient way of doing this but I do not
-            have the time to come up with one so I apologise to whoever has to read and mark this.
+            I know there is definitely a more efficient way of doing this
              */
-            switch (p.getHidden_board()[y][x]) {
-                case 'F' -> {
-                    if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
-                        System.out.println(" Fish found! +5 Bonus Points");
-                        p.setPoints(p.getPoints() + 5);
+            switch (currentPlayer.getHidden_board()[y][x]) {
+                // fish found
+                case Config.FISH_TILE -> {
+                    if (currentPlayer.getBoard()[y][x+1] == Config.FISH_TILE ||
+                            currentPlayer.getBoard()[y][x-1] == Config.FISH_TILE) {
+                        System.out.println(" Fish found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                        currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                     }
                 }
-                case 'S' -> {
+
+                // snake found
+                case Config.SNAKE_TILE -> {
                     // get to the start of the found parts of the snake
-                    while (p.getBoard()[y][x] == 'S') x--;
+                    while (currentPlayer.getBoard()[y][x] == Config.SNAKE_TILE) x--;
 
                     int count = 0;  // store the number of snake parts found
                     x++;    // compensate for the while loop taking away an extra 1
-                    while (p.getBoard()[y][x] == 'S') {
+                    while (currentPlayer.getBoard()[y][x] == Config.SNAKE_TILE) {
                         count++;
                         x++;
                     }
 
                     if (count == 4) {
-                        System.out.println(" Sea Snake found! +5 Bonus Points");
-                        p.setPoints(p.getPoints() + 5);
+                        popup("Sea Snake found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                        currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                     }
                 }
-                case 'C' -> {
-                    // these are separated out so its (kinda) easier to read
-                    if (p.getBoard()[y][x+1] == 'C') {
-                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
-                            System.out.println(" Crab found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
 
-                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x + 1] == 'C') {
-                            System.out.println(" Crab found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
+                // crab found
+                case Config.CRAB_TILE -> {
+                    if (currentPlayer.getBoard()[y][x+1] == Config.CRAB_TILE) {
+                        if (currentPlayer.getBoard()[y + 1][x] == Config.CRAB_TILE &&
+                                currentPlayer.getBoard()[y + 1][x + 1] == Config.CRAB_TILE) {
+                            popup("Crab found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
+
+                        } else if (currentPlayer.getBoard()[y - 1][x] == Config.CRAB_TILE &&
+                                currentPlayer.getBoard()[y - 1][x + 1] == Config.CRAB_TILE) {
+                            popup("Crab found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                         }
                     }
 
-                    else if (p.getBoard()[y][x-1] == 'C')
-                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x - 1] == 'C') {
-                            System.out.println(" Crab found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
+                    else if (currentPlayer.getBoard()[y][x-1] == Config.CRAB_TILE)
+                        if (currentPlayer.getBoard()[y + 1][x] == Config.CRAB_TILE &&
+                                currentPlayer.getBoard()[y + 1][x - 1] == Config.CRAB_TILE) {
+                            popup("Crab found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
 
-                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x - 1] == 'C') {
-                            System.out.println(" Crab found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
+                        } else if (currentPlayer.getBoard()[y - 1][x] == Config.CRAB_TILE &&
+                                currentPlayer.getBoard()[y - 1][x - 1] == Config.CRAB_TILE) {
+                            popup("Crab found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                         }
                 }
-                case 'O' -> {
+
+                // starfish found
+                case Config.STARFISH_TILE -> {
                     // starting from the centre
-                    if (p.getBoard()[y-1][x] == 'O' && p.getBoard()[y+1][x] == 'O' &&
-                            p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x-1] == 'O') {
-                        System.out.println(" Starfish found! +5 Bonus Points");
-                        p.setPoints(p.getPoints() + 5);
+                    if (currentPlayer.getBoard()[y-1][x] == Config.STARFISH_TILE &&
+                            currentPlayer.getBoard()[y+1][x] == Config.STARFISH_TILE &&
+                            currentPlayer.getBoard()[y][x+1] == Config.STARFISH_TILE &&
+                            currentPlayer.getBoard()[y][x-1] == Config.STARFISH_TILE) {
+                        popup("Starfish found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                        currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                     }
                     // now we know it doesn't start in the centre
                     // starting from left or right side
-                    else if (p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x+2] == 'O' ||
-                            p.getBoard()[y][x-1] == 'O' && p.getBoard()[y][x-2] == 'O') {
-                        if (p.getBoard()[y-1][x-1] == 'O' && p.getBoard()[y+1][x-1] == 'O' ||
-                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y+1][x+1] == 'O') {
-                            System.out.println(" Starfish found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
+                    else if (currentPlayer.getBoard()[y][x+1] == Config.STARFISH_TILE &&
+                            currentPlayer.getBoard()[y][x+2] == Config.STARFISH_TILE ||
+                            currentPlayer.getBoard()[y][x-1] == Config.STARFISH_TILE &&
+                                    currentPlayer.getBoard()[y][x-2] == Config.STARFISH_TILE) {
+                        if (currentPlayer.getBoard()[y-1][x-1] == Config.STARFISH_TILE &&
+                                currentPlayer.getBoard()[y+1][x-1] == Config.STARFISH_TILE ||
+                                currentPlayer.getBoard()[y-1][x+1] == Config.STARFISH_TILE &&
+                                        currentPlayer.getBoard()[y+1][x+1] == Config.STARFISH_TILE) {
+                            popup("Starfish found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                         }
                     }
                     // now we know it doesn't start in the middle row
                     // starting from the top or bottom
-                    else if(p.getBoard()[y-1][x] == 'O' && p.getBoard()[y-2][x] == 'O' ||
-                            p.getBoard()[y+1][x] == 'O' && p.getBoard()[y+2][x] == 'O') {
-                        if (p.getBoard()[y+1][x-1] == 'O' && p.getBoard()[y+1][x+1] == 'O' ||
-                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y-1][x-1] == 'O') {
-                            System.out.println(" Starfish found! +5 Bonus Points");
-                            p.setPoints(p.getPoints() + 5);
+                    else if(currentPlayer.getBoard()[y-1][x] == Config.STARFISH_TILE &&
+                            currentPlayer.getBoard()[y-2][x] == Config.STARFISH_TILE ||
+                            currentPlayer.getBoard()[y+1][x] == Config.STARFISH_TILE &&
+                                    currentPlayer.getBoard()[y+2][x] == Config.STARFISH_TILE) {
+                        if (currentPlayer.getBoard()[y+1][x-1] == Config.STARFISH_TILE &&
+                                currentPlayer.getBoard()[y+1][x+1] == Config.STARFISH_TILE ||
+                                currentPlayer.getBoard()[y-1][x+1] == Config.STARFISH_TILE &&
+                                        currentPlayer.getBoard()[y-1][x-1] == Config.STARFISH_TILE) {
+                            popup("Starfish found!\n +" + Config.CREATURE_FOUND_POINTS + " Bonus Points");
+                            currentPlayer.setPoints(currentPlayer.getPoints() + Config.CREATURE_FOUND_POINTS);
                         }
                     }
                 }
             }
         } else {
-            p.setBoard(y, x, 'x');
-            System.out.println("\nNo luck!");
+            currentPlayer.setBoard(y, x, Config.GUESSED_TILE);
+            popup("No luck!");
         }
 
         // return -1 if tile was not a MegaGuess tile
         return -1;
+    }
+
+    /**
+     * creates a popup telling the player what they found
+     * @param message
+     */
+    private void popup(String message) {
+        JOptionPane.showMessageDialog(null, message, player[turn].getName(), JOptionPane.INFORMATION_MESSAGE);
     }
 }
