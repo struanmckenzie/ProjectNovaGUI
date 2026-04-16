@@ -19,7 +19,7 @@ public class PlayGame {
         // clear frame ready for game board
         frame.getContentPane().removeAll();
 
-        frame.setTitle("Project Nova");
+        frame.setTitle("Project Nova - " + player[turn].getName());
         startUI();
     }
 
@@ -52,7 +52,7 @@ public class PlayGame {
         frame.setJMenuBar(menuBar);
 
         // main panel setup
-        JPanel mainPanel = new JPanel(new GridLayout(2, 1));
+        JPanel mainPanel = new JPanel(new GridLayout(2, 0));
 
         // ================ player stats panel =============
         JPanel stats = getStats(turn);
@@ -68,9 +68,9 @@ public class PlayGame {
         for (int i = 15; i >= 0; i--) {
             for (int j = 0; j < 16; j++) {
                 if (hint)
-                    buttonBoard.add(styledButton(String.valueOf(player[turn].getHidden_board()[i][j]), i, j));
+                    buttonBoard.add(styledButton(String.valueOf(player[turn].getHidden_board()[i][j]), j, i));
                 else
-                    buttonBoard.add(styledButton(String.valueOf(player[turn].getBoard()[i][j]), i, j));
+                    buttonBoard.add(styledButton(String.valueOf(player[turn].getBoard()[i][j]), j, i));
 
             }
         }

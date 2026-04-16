@@ -75,7 +75,7 @@ public class NewGameScreen {
      * @return completed panel
      */
     private JPanel getPanel(Player[] player) {
-        JPanel buttonPanel = new JPanel(new GridLayout(1,2));
+        JPanel buttonPanel = new JPanel(new GridLayout(0,2));
 
         JButton playerOneName = new JButton("Player One");
         playerOneName.addActionListener(l -> {
