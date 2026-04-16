@@ -56,7 +56,7 @@ public class Game {
         for (int player = 0; player < 2; player++) {
             // declare names of files to load
             String loadBoard = (saveName + player + "Board.txt");
-            String loadHBoard = (saveName + player + "HBoard.txt");
+            String loadHBoard = (saveName + player + "HiddenBoard.txt");
             String loadDetails = (saveName + player + "Details.txt");
 
             FileReader fr;
@@ -72,7 +72,7 @@ public class Game {
                 plr[player].setName(br.readLine());
                 plr[player].setPoints(Integer.parseInt(br.readLine()));
                 plr[player].setHealth(Integer.parseInt(br.readLine()));
-                plr[player].explorer = Boolean.parseBoolean(br.readLine());
+                plr[player].isExplorer = Boolean.parseBoolean(br.readLine());
 
                 String nextLine = br.readLine();
                 if (nextLine != null) {
@@ -123,56 +123,9 @@ public class Game {
         }
 
         // play game
-        play(plr);
+        new PlayGame(plr);
     }
 
-    /**
-     * for actual gameplay
-     * @param p player array
-     */
-    private void play(Player[] p) {
-        int turn = 0; // player whose turn it is
-        int megaGuess;  // y coordinate MegaGuess is on
-        boolean hint;    // store which board to display
-
-        while (true) {
-            hint = checkStatus(p, turn);
-
-            // only display if player needs a hint
-            if (hint) {
-                hint = p[turn].hint(hint);
-                p[turn].display(hint);
-                hint = false;
-            }
-
-            clear();  // clear terminal
-            p[turn].display(hint);
-
-            //pauseMenu(p, (turn-1)*(-1));  i think this is just annoying, but it does work
-
-            megaGuess = guess(p[turn], -1, 0);
-            if (megaGuess != -1) {
-                clear();  // clear terminal
-                for (int x = 0; x < p[turn].length; x++) {
-                    guess(p[turn], megaGuess, x);
-                }
-            }
-            else {
-                System.out.print("\33[22;56H\033[1J\33[H");
-                System.out.flush();
-            }
-            scn.nextLine(); // eat up something i dont even know anymore
-
-            checkStatus(p, turn);
-
-            p[turn].display(hint);
-            pauseMenu(p, turn);
-
-            // switch to next player's turn
-            turn = (turn-1)*(-1);
-        }
-
-    }
 
     /**
      * gets a players guess for where a creature might be
@@ -398,7 +351,6 @@ public class Game {
 
             if (!option.isEmpty()) {
                 switch (option) {
-                    case "s", "S" -> save(p, turn);
                     case "q", "Q" -> {
                         clear(); // clear terminal
                         // print summary
@@ -424,163 +376,6 @@ public class Game {
                 }
             }
         }
-    }
-
-    /**
-     * saves the current game to files on disk
-     */
-    private void save(Player[] p, int turn) {
-        clear();
-        System.out.println("Please enter a name for this save: ");
-        String saveName = ("./.ProjectNova/" + scn.nextLine() + "/");
-
-        // see if save folder exists, creates one if not
-        File theDir = new File(saveName);
-        if (!theDir.exists()){
-            theDir.mkdirs();
-        }
-
-        for (int player = 0; player < p.length; player++) {
-            // names to save files under
-            String saveBoard = (saveName + player + "Board.txt");
-            String saveHBoard = (saveName + player + "HBoard.txt");
-            String saveDetails = (saveName + player + "Details.txt");
-
-            FileOutputStream outStream;
-            PrintWriter pw;
-
-            try {
-                // save board
-                outStream = new FileOutputStream(saveBoard);
-                pw = new PrintWriter(outStream);
-
-                // write board to file
-                for (int i = 0; i < p[player].height; i++) {
-                    for (int j = 0; j < p[player].length; j++) {
-                        pw.print(p[player].getBoard()[i][j]);
-                    }
-                    pw.println();
-                }
-                pw.close();
-
-                // write hidden board to file
-                outStream = new FileOutputStream(saveHBoard);
-                pw = new PrintWriter(outStream);
-
-                for (int i = 0; i < p[player].height; i++) {
-                    for (int j = 0; j < p[player].length; j++) {
-                        pw.print(p[player].getHidden_board()[i][j]);
-                    }
-                    pw.println();
-                }
-                pw.close();
-
-                // save other details
-                outStream = new FileOutputStream(saveDetails);
-                pw = new PrintWriter(outStream);
-
-                pw.println(p[player].length + "\n" +
-                        p[player].height + "\n" +
-                        p[player].getName() + "\n" +
-                        p[player].getPoints() + "\n" +
-                        p[player].getHealth() + "\n" +
-                        p[player].explorer);
-
-                // mark the player who should start
-                if (player != turn)
-                    pw.println(player);
-                pw.close();
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        System.out.println("""
-            
-            Press ENTER to continue or enter any other key for main menu""");
-
-        String s = scn.nextLine();
-
-        if (!s.isEmpty()) {
-            menu();
-        }
-
-    }
-
-    /**
-     * checks to see if win/lose condition has been met
-     * @param p player object
-     * @return whether the player should be offered a hint
-     */
-    private boolean checkStatus(Player[] p, int turn) {
-        // check if the player has died
-        if (p[turn].getHealth() <= 0) {
-            System.out.println("You died :(");
-            if (p[turn].explorer)
-                System.out.println("""
-                        You failed to save the rest of the creatures from the \33[31;1mEvil Hunter\33[0m
-                        who continued on and managed to hunt down
-                        all the creatures and wins by default.""");
-            else
-                System.out.println("""
-                        You failed to hunt all the creatures down.
-                        The \33[32;1mMystical Explorer\33[0m went on to save the rest
-                        of the creatures and wins by default.""");
-
-            System.out.println("\n+ -------");
-            for (Player player : p) {
-                System.out.println("| " + player.getName());
-                System.out.println("| Points: " + player.getPoints());
-                System.out.println("| Health: " + player.getHealth());
-                System.out.println("+ -------");
-            }
-
-            System.out.println("\nENTER to exit");
-            scn.nextLine();
-            menu();
-        }
-
-        // check if player has found all the creatures
-        int hiddenCount = 0;  // number of creature parts in hidden board
-        int visableCount = 0;  // number of creature parts in visable board
-
-        for (int i = 0; i < p[turn].height; i++) {
-            for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] == 'F' || p[turn].getHidden_board()[i][j] == 'C' ||
-                        p[turn].getHidden_board()[i][j] == 'S' || p[turn].getHidden_board()[i][j] == 'O')
-                    hiddenCount++;
-                if (p[turn].getBoard()[i][j] == 'F' || p[turn].getBoard()[i][j] == 'C' ||
-                        p[turn].getBoard()[i][j] == 'S' || p[turn].getBoard()[i][j] == 'O')
-                    visableCount++;
-            }
-        }
-
-        // check to see if all the creatures have been found
-        if (hiddenCount == visableCount) {
-            if (p[turn].explorer)
-                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        As the \33[32;1mMystical Explorer\33[0m you managed to save all the creatures from the hunter.
-                        """);
-            else
-                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        As the \33[31;1mEvil Hunter\33[0m you have managed to hunt all the creatures to extinction.
-                        """);
-
-            System.out.println("\n+ -------");
-            for (Player player : p) {
-                System.out.println("| " + player.getName());
-                System.out.println("| Points: " + player.getPoints());
-                System.out.println("| Health: " + player.getHealth());
-                System.out.println("+ -------");
-            }
-
-            System.out.println("\nPress ENTER to exit");
-            scn.nextLine();
-            menu();
-            }
-
-        return p[turn].getHealth() <= 25;
     }
 
     /**

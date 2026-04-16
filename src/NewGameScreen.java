@@ -59,7 +59,7 @@ public class NewGameScreen {
         frame.add(mainPanel);
 
         // set first player to explorer
-        player[0].explorer = true;
+        player[0].isExplorer = true;
 
         // call GameObjects to place objects on each players' board
         for (Player p : player) objects.spawn(p);

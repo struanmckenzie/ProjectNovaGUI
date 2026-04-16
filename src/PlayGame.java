@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 
 public class PlayGame {
     // fields
@@ -15,6 +19,8 @@ public class PlayGame {
         this.frame = frame;
         this.player = player;
         this.turn = turn;
+
+        frame.getContentPane().removeAll();
 
         frame.setTitle("Project Nova - " + player[turn].getName());
         startUI();
@@ -36,7 +42,13 @@ public class PlayGame {
         menuBar.add(menu);
 
         // menu item action listeners
-        save.addActionListener(l -> System.out.println(getClass() + ": save game"));
+        save.addActionListener(l -> {
+            System.out.println(getClass() + ": save game");
+            String saveName = JOptionPane.showInputDialog(null, "Enter name for the save",
+                    "Save game", JOptionPane.INFORMATION_MESSAGE);
+
+            save(player, turn, saveName);
+        });
         quit.addActionListener(l -> {
             // confirm quit
             if (JOptionPane.showConfirmDialog(frame, "Quit without saving?") == 0)
@@ -82,12 +94,14 @@ public class PlayGame {
 
     private JButton styledButton(String charToDisplay, int x, int y) {
         JButton btn = new JButton(charToDisplay);
-        if (!charToDisplay.equals("+"))
-            btn.setEnabled(false);
 
-        // set size of buttons to size of frame / number of coordinates and make them square
-        int square = frame.getWidth() / Config.BOARD_SIZE;
-        btn.setMaximumSize(new Dimension());
+        // if tile has been guessed, disable it
+        if (!charToDisplay.equals("+")) btn.setEnabled(false);
+
+        // set font
+        btn.setFont(new Font(null, Font.BOLD, 20));
+
+        // compute what happens when player makes a guess by pressing a button
         btn.addActionListener(l -> {
             System.out.println("Clicked button: " + x +", "+ y);    // TURN INTO SYSTEM MESSAGE
             megaGuess = guess(player[turn], -1, 0, x, y);
@@ -142,7 +156,7 @@ public class PlayGame {
         // check if the player has died
         if (p[turn].getHealth() <= 0) {
             System.out.println("You died :(");
-            if (p[turn].explorer)
+            if (p[turn].isExplorer)
                 System.out.println("""
                         You failed to save the rest of the creatures from the \33[31;1mEvil Hunter\33[0m
                         who continued on and managed to hunt down
@@ -182,7 +196,7 @@ public class PlayGame {
 
         // check to see if all the creatures have been found
         if (hiddenCount == visableCount) {
-            if (p[turn].explorer)
+            if (p[turn].isExplorer)
                 System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
                         As the \33[32;1mMystical Explorer\33[0m you managed to save all the creatures from the hunter.
                         """);
@@ -208,6 +222,75 @@ public class PlayGame {
     }
 
     /**
+     * saves the current game to files on disk
+     */
+    private void save(Player[] p, int turn, String saveName) {
+        saveName = ("Saves/" + saveName + "/");
+
+        // see if save folder exists, creates one if not
+        File theDir = new File(saveName);
+        if (!theDir.exists()){
+            theDir.mkdirs();
+        }
+
+        for (int player = 0; player < p.length; player++) {
+            // names to save files under
+            String saveBoard = (saveName + player + "Board.txt");
+            String saveHiddenBoard = (saveName + player + "HiddenBoard.txt");
+            String saveDetails = (saveName + player + "Details.txt");
+
+            FileOutputStream outStream;
+            PrintWriter pw;
+
+            try {
+                // save board
+                outStream = new FileOutputStream(saveBoard);
+                pw = new PrintWriter(outStream);
+
+                // write board to file
+                for (int i = 0; i < p[player].height; i++) {
+                    for (int j = 0; j < p[player].length; j++) {
+                        pw.print(p[player].getBoard()[i][j]);
+                    }
+                    pw.println();
+                }
+                pw.close();
+
+                // write hidden board to file
+                outStream = new FileOutputStream(saveHiddenBoard);
+                pw = new PrintWriter(outStream);
+
+                for (int i = 0; i < p[player].height; i++) {
+                    for (int j = 0; j < p[player].length; j++) {
+                        pw.print(p[player].getHidden_board()[i][j]);
+                    }
+                    pw.println();
+                }
+                pw.close();
+
+                // save other details
+                outStream = new FileOutputStream(saveDetails);
+                pw = new PrintWriter(outStream);
+
+                pw.println(p[player].length + "\n" +
+                        p[player].height + "\n" +
+                        p[player].getName() + "\n" +
+                        p[player].getPoints() + "\n" +
+                        p[player].getHealth() + "\n" +
+                        p[player].isExplorer);
+
+                // mark the player who should start
+                if (player != turn)
+                    pw.println(player);
+                pw.close();
+
+            } catch (FileNotFoundException e) {
+                System.out.println("Error: failed to save to files");
+            }
+        }
+    }
+
+    /**
      * gets a players guess for where a creature might be
      *
      * @param p player
@@ -223,7 +306,7 @@ public class PlayGame {
         }
 
         // already guessed
-        if (p.getBoard()[y][x] != '+') {
+        if (p.getBoard()[y][x] != Config.UNDISCOVERED_TILE) {
             // recurs if you've already guessed the coordinates and it's not a MegaGuess
             if (megaGuess == -1) {
                 p.display(false);
@@ -232,7 +315,7 @@ public class PlayGame {
             } else
                 System.out.println("\nPrevious guess");
         }
-        else if (p.getHidden_board()[y][x] != '+') {
+        else if (p.getHidden_board()[y][x] != Config.UNDISCOVERED_TILE) {
             // bomb found
             if (p.getHidden_board()[y][x] == 'B') {
                 System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
@@ -257,7 +340,7 @@ public class PlayGame {
             }
 
             // creature found
-            else if (p.getBoard()[y][x] == '+') {
+            else if (p.getBoard()[y][x] == Config.UNDISCOVERED_TILE) {
                 System.out.println("\nCreature part found!\n+5 Points");
                 p.setBoard(y, x, p.getHidden_board()[y][x]);
                 p.setPoints(p.getPoints() + 5);

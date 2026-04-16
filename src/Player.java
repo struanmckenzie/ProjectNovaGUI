@@ -9,11 +9,11 @@
 public class Player {
     // FIELDS
     private String name;
-    public boolean explorer;
+    public boolean isExplorer;
     private int points;
     private int health;
-    public int length;
-    public int height;
+    public int length = Config.BOARD_SIZE;
+    public int height = Config.BOARD_SIZE;
     private char[][] board;
     private char[][] hidden_board;
     public char[][] temp_board;
@@ -24,20 +24,18 @@ public class Player {
      */
     public Player() {
         name = "";
-        explorer = false;
+        isExplorer = false;
         points = 0;
         health = 100;
-        height = 16;
-        length = 16;
         board = new char[height][length];
         hidden_board = new char[height][length];
         temp_board = new char[height][length];
 
         for (int i = 0; i < (height); i++)
             for (int j = 0; j < (length); j++) {
-                board[i][j] = '+';
-                hidden_board[i][j] = '+';
-                temp_board[i][j] = '+';
+                board[i][j] = Config.UNDISCOVERED_TILE;
+                hidden_board[i][j] = Config.UNDISCOVERED_TILE;
+                temp_board[i][j] = Config.UNDISCOVERED_TILE;
             }
     }
 
