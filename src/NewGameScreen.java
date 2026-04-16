@@ -50,7 +50,7 @@ public class NewGameScreen {
                 JOptionPane.showMessageDialog(frame, "Please enter names first");
             } else {
                 System.out.println(getClass() + ": start game");
-                new StartGame(frame, player);
+                new PlayGame(frame, player);
             }
         });
 
