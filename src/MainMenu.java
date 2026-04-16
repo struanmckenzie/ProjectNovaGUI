@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Objects;
 
 public class MainMenu {
@@ -55,15 +59,28 @@ public class MainMenu {
         JButton quit = new JButton("Quit");
 
         // action listeners
+        // new game
         newGame.addActionListener(l -> {
             System.out.println(getClass() + ": new game");
             new NewGameScreen(frame);
         });
-        loadGame.addActionListener(l -> System.out.println(getClass() + ": load game"));
+
+        // load game
+        loadGame.addActionListener(l -> {
+            System.out.println(getClass() + ": load game");
+            String saveName = JOptionPane.showInputDialog(null, "Enter name of the save",
+                    "Save game", JOptionPane.INFORMATION_MESSAGE);
+
+            loadGame(saveName);
+        });
+
+        // help page
         help.addActionListener(l -> {
             System.out.println(getClass() + ": help screen");
             new HelpScreen(frame);
         });
+
+        // quit game
         quit.addActionListener(l -> {
             System.out.println(getClass() + ": quit game");
             // confirm quit
@@ -109,5 +126,100 @@ public class MainMenu {
         } catch (NullPointerException e) {
             System.out.println(getClass() + ": failed to load " + location);
         }
+    }
+
+    /**
+     * loads a previously saved game
+     */
+    private void loadGame(String saveName) {
+        // get name of save and make sure it exists
+        saveName = ("Saves/" + saveName + "/");
+
+        File save = new File(saveName + "0" + "Details.txt");
+        if (!save.exists()) {
+            JOptionPane.showMessageDialog(null, "Save does not exist");
+            new MainMenu(frame);
+        }
+
+        // initialise player array
+        Player[] player = new Player[2];
+
+        for (int i = 0; i < player.length; i++)
+            player[i] = new Player();
+
+        int startingPlayer = 0;
+
+        for (int turn = 0; turn < 2; turn++) {
+            // declare names of files to load
+            String loadBoard = (saveName + turn + "Board.txt");
+            String loadHBoard = (saveName + turn + "HiddenBoard.txt");
+            String loadDetails = (saveName + turn + "Details.txt");
+
+            FileReader fr;
+            BufferedReader br;
+
+            // load details
+            try {
+                fr = new FileReader(loadDetails);
+                br = new BufferedReader(fr);
+
+                player[turn].length = Integer.parseInt(br.readLine());
+                player[turn].height = Integer.parseInt(br.readLine());
+                player[turn].setName(br.readLine());
+                player[turn].setPoints(Integer.parseInt(br.readLine()));
+                player[turn].setHealth(Integer.parseInt(br.readLine()));
+                player[turn].isExplorer = Boolean.parseBoolean(br.readLine());
+
+                String nextLine = br.readLine();
+                if (nextLine != null) {
+                    startingPlayer = Integer.parseInt(nextLine);
+                }
+
+                // load board
+                fr = new FileReader(loadBoard);
+                br = new BufferedReader(fr);
+
+                nextLine = br.readLine();
+                int i = 0;
+                while(nextLine != null) {
+                    for (int j = 0; j < player[turn].length; j++)
+                        player[turn].setBoard(i, j, nextLine.toCharArray()[j]);
+
+                    nextLine = br.readLine();
+                    i++;
+                }
+                br.close();
+
+                // load hidden board
+                fr = new FileReader(loadHBoard);
+                br = new BufferedReader(fr);
+
+                nextLine = br.readLine();
+                i = 0;
+                while (nextLine != null) {
+                    for (int j = 0; j < player[turn].length; j++)
+                        player[turn].setHidden_board(i, j, nextLine.toCharArray()[j]);
+
+                    nextLine = br.readLine();
+                    i++;
+                }
+                br.close();
+
+
+            } catch (IOException e) {
+                System.out.println("Error: unable to load save");
+                new MainMenu(frame);
+            }
+        }
+
+        // make sure the correct player starts first
+        if (startingPlayer != 0) {
+            Player tmp = player[0];
+            player[0] = player[1];
+            player[1] = tmp;
+        }
+
+        // play game
+        new PlayGame(frame, player, 1);
     }
 }

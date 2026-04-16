@@ -47,7 +47,7 @@ public class PlayGame {
             String saveName = JOptionPane.showInputDialog(null, "Enter name for the save",
                     "Save game", JOptionPane.INFORMATION_MESSAGE);
 
-            save(player, turn, saveName);
+            saveGame(player, turn, saveName);
         });
         quit.addActionListener(l -> {
             // confirm quit
@@ -224,7 +224,7 @@ public class PlayGame {
     /**
      * saves the current game to files on disk
      */
-    private void save(Player[] p, int turn, String saveName) {
+    private void saveGame(Player[] p, int turn, String saveName) {
         saveName = ("Saves/" + saveName + "/");
 
         // see if save folder exists, creates one if not
