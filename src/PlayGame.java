@@ -113,6 +113,11 @@ public class PlayGame {
 
             checkStatus(player, turn);
 
+            JOptionPane.showMessageDialog(null, "Next player");
+
+            // flip player turn
+            turn = (turn - 1) * -1;
+
             frame.getContentPane().removeAll();
             startUI();
         });
@@ -280,7 +285,7 @@ public class PlayGame {
                         p[player].isExplorer);
 
                 // mark the player who should start
-                if (player != turn)
+                if (player == turn)
                     pw.println("not null");
                 pw.close();
 
