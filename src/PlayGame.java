@@ -6,14 +6,15 @@ public class PlayGame {
     private final JFrame frame;
 
     private final Player[] player; // player array
-    int turn = 0; // player whose turn it is
+    int turn; // player whose turn it is
     int megaGuess;  // y coordinate MegaGuess is on
     boolean hint;    // store which board to display
 
 
-    public PlayGame(JFrame frame, Player[] player) {
+    public PlayGame(JFrame frame, Player[] player, int turn) {
         this.frame = frame;
         this.player = player;
+        this.turn = turn;
 
         // clear frame ready for game board
         frame.getContentPane().removeAll();
@@ -23,7 +24,6 @@ public class PlayGame {
     }
 
     private void startUI() {
-
         // menu bar
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Options");
@@ -54,7 +54,7 @@ public class PlayGame {
         // main panel setup
         JPanel mainPanel = new JPanel(new GridLayout(2, 1));
 
-        // player stats panel
+        // ================ player stats panel =============
         JPanel stats = getStats(turn);
         mainPanel.add(stats);
 
@@ -85,6 +85,8 @@ public class PlayGame {
 
     private JButton styledButton(String charToDisplay, int x, int y) {
         JButton btn = new JButton(charToDisplay);
+        if (!charToDisplay.equals("+"))
+            btn.setEnabled(false);
 
         btn.addActionListener(l -> {
             System.out.println("Clicked button: " + x + y); // !!!!!!!!! debugginbg whit
@@ -94,6 +96,11 @@ public class PlayGame {
                     guess(player[turn], megaGuess, z, x, y);
                 }
             }
+
+            checkStatus(player, turn);
+
+            frame.getContentPane().removeAll();
+            startUI();
         });
         return btn;
     }
@@ -104,7 +111,7 @@ public class PlayGame {
      * @return stats panel
      */
     private JPanel getStats(int turn) {
-        JPanel stats = new JPanel(new GridLayout(1, 3));
+        JPanel stats = new JPanel(new GridLayout(1, 4));
 
         // initialise player stats fields
         JTextField name = new JTextField(), points = new JTextField(), health = new JTextField();
@@ -120,6 +127,14 @@ public class PlayGame {
         stats.add(name);
         stats.add(points);
         stats.add(health);
+
+        // next player button
+        JButton next = new JButton("Next Player");
+        next.addActionListener(l -> new PlayGame(frame, player, (turn-1)*(-1)));
+        stats.add(next);
+
+        stats.setSize(new Dimension(frame.getWidth(), frame.getHeight() / 10));
+
         return stats;
     }
 
