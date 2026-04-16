@@ -13,12 +13,15 @@ public class MainMenu {
         this.frame = frame;
 
         frame.getContentPane().removeAll();
+        frame.setTitle("Main Menu");
         launchUI();
     }
 
     private void launchUI() {
+        frame.setJMenuBar(null);
+
+
         // configure window frame
-        frame.setTitle("Project Nova");
         frame.setLocationRelativeTo(null);
 
         // Main panel to contain sub-panels
@@ -84,7 +87,7 @@ public class MainMenu {
         try {
             ImageIcon rawImage = new ImageIcon(Objects.requireNonNull(getClass().getResource(location)));
             Image image = rawImage.getImage();
-            Image scaledImage = image.getScaledInstance(frame.getWidth() / 3, -1, Image.SCALE_SMOOTH);
+            Image scaledImage = image.getScaledInstance(-1, frame.getHeight(), Image.SCALE_SMOOTH);
             ImageIcon finalImage = new ImageIcon(scaledImage);
             JLabel finalImageLabel = new JLabel(finalImage);
             imagePanel.add(finalImageLabel);

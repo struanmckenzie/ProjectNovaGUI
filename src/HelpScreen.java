@@ -25,8 +25,19 @@ public class HelpScreen {
     }
 
     private void startHelp() {
-        // setup main panel
+        // menu bar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu navigation = new JMenu("Navigation");
+        JMenuItem rtrn = new JMenuItem("Main Menu");
+        navigation.add(rtrn);
+        menuBar.add(navigation);
+
+        rtrn.addActionListener(l -> new MainMenu(frame));
+        frame.setJMenuBar(menuBar);
+
+        // main panel setup
         JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         // the text to display
         JTextArea info = new JTextArea("""
@@ -61,8 +72,12 @@ public class HelpScreen {
         info.setWrapStyleWord(true);
         info.setEditable(false);
 
-        mainPanel.add(info);
+        // scroll pane
+        JScrollPane infoPane = new JScrollPane(info);
+        infoPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        infoPane.getVerticalScrollBar().setUnitIncrement(20);
 
+        mainPanel.add(infoPane);
         frame.add(mainPanel);
 
         frame.repaint();
