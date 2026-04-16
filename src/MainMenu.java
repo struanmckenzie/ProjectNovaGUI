@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class MainMenu {
     // Fields
-    private JFrame frame;
+    private final JFrame frame;
 
     /**
      * Constructor

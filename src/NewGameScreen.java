@@ -3,7 +3,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 
 public class NewGameScreen {
-    private JFrame frame;
+    private final JFrame frame;
 
     public NewGameScreen(JFrame frame) {
         this.frame = frame;
