@@ -19,79 +19,16 @@ public class Game {
      * @param args command line args. unused
      */
     public static void main(String[] args) {
-        Game g = new Game();
-        g.menu();
+        new Game().menu();
     }
 
     /**
      * menu system for the game
      */
     private void menu() {
-        clear();    // clear terminal
-        System.out.print("""
-                + ------- MENU ------- +
-                | Start new game ••• 1 |
-                | Load game •••••••• 2 |
-                | View help •••••••• 3 |
-                | Quit ••••••••••••• Q |
-                + -------------------- +
-                """);
-        String option = scn.nextLine();
-
-        switch (option) {
-            case "1" -> {
-                clear();    // clear terminal
-                startNewGame();
-            }
-            case "2" -> {
-                clear();    // clear terminal
-                loadGame();
-            }
-            case "3" -> {
-                clear();    // clear terminal
-                help();
-            }
-            case "q", "Q" -> System.exit(0);
-            default -> menu();
-        }
+        new LaunchGUI();
     }
 
-    /**
-     * start new game,
-     * initialises boards and players
-     */
-    private void startNewGame() {
-        // initialise player array and create instance of GameObjects
-        Player[] plr = { new Player(), new Player() };
-        GameObjects c = new GameObjects();
-
-        // explain who starts
-        System.out.println("""
-                The explorer starts on their quest to rescue the last
-                remaining underwater creatures.
-                The hunter knows the explorer will lead them to the
-                best place to hunt and decides to follow discretely...
-                """);
-
-        // set first player to explorer
-        plr[0].explorer = true;
-
-        // get names of players
-        System.out.print("Who will play as the\n" +
-                "\33[32mMystical Explorer: ");
-        plr[0].setName("\33[32;1m" + scn.nextLine() + "\33[0m");
-
-        System.out.print("\33[31mEvil Hunter: ");
-        plr[1].setName("\33[31;1m" + scn.nextLine() + "\33[0m");
-
-        System.out.print("\33[0m"); // reset colour
-
-        // call GameObjects to place objects on each players' board
-        for (Player p : plr) c.spawn(p);
-
-        // start gameplay
-        play(plr);
-    }
 
     /**
      * loads a previously saved game
@@ -190,47 +127,6 @@ public class Game {
     }
 
     /**
-     * prints a help/instructions page
-     */
-    private void help() {
-        System.out.print("""
-                + --------------------------- HELP PAGE -------------------------------- +
-                | The aim of the game is to find all the creatures before your opponent. |
-                | If the game ends early the player with the most points wins and the    |
-                |  current winner is displayed on the pause menu before quitting.        |
-                |                                                                        |
-                | You can save and quit from the pause menu.                             |
-                |                                                                        |
-                | Enter the coordinates in the form: xy                                  |
-                |  where 'x' is the letter on the x axis                                 |
-                |  and 'y' is the letter on the y axis                                   |
-                |                                                                        |
-                | 5 points are earned for every part of a creature found                 |
-                | 5 bonus points are earned once a whole creature is found               |
-                | Bombs take away 25HP                                                   |
-                | Seaweed adds 15HP (effectively acts as a shield if you have 100HP)     |
-                | MegaGuess reveals a whole row                                          |
-                |                                                                        |
-                | If you are under 25HP you will be give the opportunity to buy a hint   |
-                |  with your points which will reveal the board for 10 seconds.          |
-                |  Use this time wisely                                                  |
-                |                                                                        |
-                | Objects ID key:                                                        |
-                |    Fish | Sea Snake | Crab  | Starfish | Bomb | Seaweed | MegaGuess    |
-                |  -------+-----------+-------+----------+------+---------+------------  |
-                |    F F  |  S S S S  |  C C  |    O     |  B   |    H    |     M        |
-                |         |           |  C C  |  O O O   |      |         |              |
-                |         |           |       |    O     |      |         |              |
-                + ---------------------------------------------------------------------- +
-                
-                Press ENTER to continue
-                """);
-
-        scn.nextLine();
-        menu();
-    }
-
-    /**
      * for actual gameplay
      * @param p player array
      */
@@ -240,7 +136,6 @@ public class Game {
         boolean hint;    // store which board to display
 
         while (true) {
-            clear();    // clear terminal
             hint = checkStatus(p, turn);
 
             // only display if player needs a hint

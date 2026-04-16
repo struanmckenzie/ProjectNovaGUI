@@ -4,7 +4,12 @@ import java.awt.*;
 public class PlayGame {
     // fields
     private final JFrame frame;
-    private final Player[] player;
+
+    private final Player[] player; // player array
+    int turn = 0; // player whose turn it is
+    int megaGuess;  // y coordinate MegaGuess is on
+    boolean hint;    // store which board to display
+
 
     public PlayGame(JFrame frame, Player[] player) {
         this.frame = frame;
@@ -13,58 +18,325 @@ public class PlayGame {
         // clear frame ready for game board
         frame.getContentPane().removeAll();
 
-        frame.setTitle("THE PLAYER WHO'S BOARD IT IS");
-        startGame();
+        frame.setTitle("Project Nova");
+        startUI();
     }
 
-    private void startGame() {
-        int turn = 0; // player whose turn it is
-        int megaGuess;  // y coordinate MegaGuess is on
-        boolean hint;    // store which board to display
+    private void startUI() {
 
-        while (true) {
-            hint = checkStatus(player, turn);
+        // menu bar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Options");
+        JMenuItem save = new JMenuItem("Save");
+        JMenuItem quit = new JMenuItem("Quit");
+        JMenuItem returnToMenu = new JMenuItem("Menu");
+        JMenuItem getHint = new JMenuItem("Hint");
 
-            // only display if player needs a hint
-            if (hint) {
-                hint = player[turn].hint(hint);
-                player[turn].display(hint);
-                hint = false;
-            }
+        menu.add(save);
+        menu.add(returnToMenu);
+        menu.add(quit);
+        menu.add(getHint);
+        menuBar.add(menu);
 
-            player[turn].display(hint);
+        // menu item action listeners
+        save.addActionListener(l -> System.out.println(getClass() + ": save game"));
+        quit.addActionListener(l -> {
+            // confirm quit
+            if (JOptionPane.showConfirmDialog(frame, "Quit without saving?") == 0)
+                System.exit(0);
+            System.out.println(getClass() + ": quit game");
+        });
+        returnToMenu.addActionListener(l -> System.out.println("return to menu"));
+        getHint.addActionListener(l -> System.out.println(player[turn].getName() + ": request hint"));
 
-            //pauseMenu(p, (turn-1)*(-1));  i think this is just annoying, but it does work
-
-            megaGuess = guess(player[turn], -1, 0);
-            if (megaGuess != -1) {
-                for (int x = 0; x < player[turn].length; x++) {
-                    guess(player[turn], megaGuess, x);
-                }
-            }
-            else {
-                System.out.print("\33[22;56H\033[1J\33[H");
-                System.out.flush();
-            }
-
-            checkStatus(player, turn);
-
-            player[turn].display(hint);
-            pauseMenu(player, turn);
-
-            // switch to next player's turn
-            turn = (turn-1)*(-1);
-        }
+        frame.setJMenuBar(menuBar);
 
         // main panel setup
-        JPanel mainPanel = new JPanel(new FlowLayout());
+        JPanel mainPanel = new JPanel(new GridLayout(2, 1));
 
         // player stats panel
-        JPanel stats = new JPanel();
+        JPanel stats = getStats(turn);
+        mainPanel.add(stats);
 
+        // ================ MAIN GAME =======================
+
+        hint = checkStatus(player, turn);
+
+        // game panel
+        JPanel buttonBoard = new JPanel(new GridLayout(16, 16));
+
+        for (int i = 15; i >= 0; i--) {
+            for (int j = 0; j < 16; j++) {
+                if (hint)
+                    buttonBoard.add(styledButton(String.valueOf(player[turn].getHidden_board()[i][j]), i, j));
+                else
+                    buttonBoard.add(styledButton(String.valueOf(player[turn].getBoard()[i][j]), i, j));
+
+            }
+        }
+        mainPanel.add(buttonBoard);
+
+        frame.add(mainPanel);
 
         frame.repaint();
         frame.revalidate();
         frame.setVisible(true);
+    }
+
+    private JButton styledButton(String charToDisplay, int x, int y) {
+        JButton btn = new JButton(charToDisplay);
+
+        btn.addActionListener(l -> {
+            System.out.println("Clicked button: " + x + y); // !!!!!!!!! debugginbg whit
+            megaGuess = guess(player[turn], -1, 0, x, y);
+            if (megaGuess != -1) {
+                for (int z = 0; z < player[turn].length; z++) {
+                    guess(player[turn], megaGuess, z, x, y);
+                }
+            }
+        });
+        return btn;
+    }
+
+    /**
+     * gets the current statistics of the current player
+     * @param turn player whose turn it is
+     * @return stats panel
+     */
+    private JPanel getStats(int turn) {
+        JPanel stats = new JPanel(new GridLayout(1, 3));
+
+        // initialise player stats fields
+        JTextField name = new JTextField(), points = new JTextField(), health = new JTextField();
+        name.setEditable(false);
+        points.setEditable(false);
+        health.setEditable(false);
+
+        // put player details in the boxes
+        name.setText(player[turn].getName());
+        points.setText("Points: " + (player[turn].getPoints()));
+        health.setText("Health: " + (player[turn].getHealth()));
+
+        stats.add(name);
+        stats.add(points);
+        stats.add(health);
+        return stats;
+    }
+
+    private boolean checkStatus(Player[] p, int turn) {
+        // check if the player has died
+        if (p[turn].getHealth() <= 0) {
+            System.out.println("You died :(");
+            if (p[turn].explorer)
+                System.out.println("""
+                        You failed to save the rest of the creatures from the \33[31;1mEvil Hunter\33[0m
+                        who continued on and managed to hunt down
+                        all the creatures and wins by default.""");
+            else
+                System.out.println("""
+                        You failed to hunt all the creatures down.
+                        The \33[32;1mMystical Explorer\33[0m went on to save the rest
+                        of the creatures and wins by default.""");
+
+            System.out.println("\n+ -------");
+            for (Player player : p) {
+                System.out.println("| " + player.getName());
+                System.out.println("| Points: " + player.getPoints());
+                System.out.println("| Health: " + player.getHealth());
+                System.out.println("+ -------");
+            }
+
+            System.out.println("\nENTER to exit");
+            new MainMenu(frame);
+        }
+
+        // check if player has found all the creatures
+        int hiddenCount = 0;  // number of creature parts in hidden board
+        int visableCount = 0;  // number of creature parts in visable board
+
+        for (int i = 0; i < p[turn].height; i++) {
+            for (int j = 0; j < p[turn].length; j++) {
+                if (p[turn].getHidden_board()[i][j] == 'F' || p[turn].getHidden_board()[i][j] == 'C' ||
+                        p[turn].getHidden_board()[i][j] == 'S' || p[turn].getHidden_board()[i][j] == 'O')
+                    hiddenCount++;
+                if (p[turn].getBoard()[i][j] == 'F' || p[turn].getBoard()[i][j] == 'C' ||
+                        p[turn].getBoard()[i][j] == 'S' || p[turn].getBoard()[i][j] == 'O')
+                    visableCount++;
+            }
+        }
+
+        // check to see if all the creatures have been found
+        if (hiddenCount == visableCount) {
+            if (p[turn].explorer)
+                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
+                        As the \33[32;1mMystical Explorer\33[0m you managed to save all the creatures from the hunter.
+                        """);
+            else
+                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
+                        As the \33[31;1mEvil Hunter\33[0m you have managed to hunt all the creatures to extinction.
+                        """);
+
+            System.out.println("\n+ -------");
+            for (Player player : p) {
+                System.out.println("| " + player.getName());
+                System.out.println("| Points: " + player.getPoints());
+                System.out.println("| Health: " + player.getHealth());
+                System.out.println("+ -------");
+            }
+
+            System.out.println("\nPress ENTER to exit");
+
+            new MainMenu(frame);
+        }
+
+        return p[turn].getHealth() <= 25;
+    }
+
+    /**
+     * gets a players guess for where a creature might be
+     *
+     * @param p player
+     */
+    private int guess(Player p, int megaGuess, int iteration, int x, int y) {
+        if (megaGuess != -1) {
+            y = megaGuess;
+            x = iteration;
+        }
+
+        for (int i = 0; i < (p.height+6); i++) {
+            System.out.print("\33[1B");
+        }
+
+        // already guessed
+        if (p.getBoard()[y][x] != '+') {
+            // recurs if you've already guessed the coordinates and it's not a MegaGuess
+            if (megaGuess == -1) {
+                p.display(false);
+                System.out.println("You already guessed there, try again");
+                guess(p, megaGuess, iteration, x, y);
+            } else
+                System.out.println("\nPrevious guess");
+        }
+        else if (p.getHidden_board()[y][x] != '+') {
+            // bomb found
+            if (p.getHidden_board()[y][x] == 'B') {
+                System.out.println("\nYou have triggered an ocean bomb\nLose 25HP");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
+                p.setHealth(p.getHealth() - 25);
+            }
+
+            // seaweed found
+            else if  (p.getHidden_board()[y][x] == 'H') {
+                System.out.println("\nYou have found some medicinal seaweed\nGain 15HP");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
+                p.setHealth(p.getHealth() + 15);
+            }
+
+            // MegaGuess found
+            else if (p.getHidden_board()[y][x] == 'M') {
+                if  (megaGuess == -1) {
+                    System.out.println("You found a MegaGuess tile - this reveals all the tiles in the same row.");
+                    p.setBoard(y, x, p.getHidden_board()[y][x]);
+                    return y;
+                } else System.out.println("\nMegaGuess tile");
+            }
+
+            // creature found
+            else if (p.getBoard()[y][x] == '+') {
+                System.out.println("\nCreature part found!\n+5 Points");
+                p.setBoard(y, x, p.getHidden_board()[y][x]);
+                p.setPoints(p.getPoints() + 5);
+            }
+
+
+
+            /*
+            detect what creature (part) was found
+
+            I know there is definitely a more efficient way of doing this but I do not
+            have the time to come up with one so I apologise to whoever has to read and mark this.
+             */
+            switch (p.getHidden_board()[y][x]) {
+                case 'F' -> {
+                    if (p.getBoard()[y][x+1] == 'F' || p.getBoard()[y][x-1] == 'F') {
+                        System.out.println(" Fish found! +5 Bonus Points");
+                        p.setPoints(p.getPoints() + 5);
+                    }
+                }
+                case 'S' -> {
+                    // get to the start of the found parts of the snake
+                    while (p.getBoard()[y][x] == 'S') x--;
+
+                    int count = 0;  // store the number of snake parts found
+                    x++;    // compensate for the while loop taking away an extra 1
+                    while (p.getBoard()[y][x] == 'S') {
+                        count++;
+                        x++;
+                    }
+
+                    if (count == 4) {
+                        System.out.println(" Sea Snake found! +5 Bonus Points");
+                        p.setPoints(p.getPoints() + 5);
+                    }
+                }
+                case 'C' -> {
+                    // these are separated out so its (kinda) easier to read
+                    if (p.getBoard()[y][x+1] == 'C') {
+                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x + 1] == 'C') {
+                            System.out.println(" Crab found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+
+                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x + 1] == 'C') {
+                            System.out.println(" Crab found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
+
+                    else if (p.getBoard()[y][x-1] == 'C')
+                        if (p.getBoard()[y + 1][x] == 'C' && p.getBoard()[y + 1][x - 1] == 'C') {
+                            System.out.println(" Crab found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+
+                        } else if (p.getBoard()[y - 1][x] == 'C' && p.getBoard()[y - 1][x - 1] == 'C') {
+                            System.out.println(" Crab found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                }
+                case 'O' -> {
+                    // starting from the centre
+                    if (p.getBoard()[y-1][x] == 'O' && p.getBoard()[y+1][x] == 'O' &&
+                            p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x-1] == 'O') {
+                        System.out.println(" Starfish found! +5 Bonus Points");
+                        p.setPoints(p.getPoints() + 5);
+                    }
+                    // now we know it doesn't start in the centre
+                    // starting from left or right side
+                    else if (p.getBoard()[y][x+1] == 'O' && p.getBoard()[y][x+2] == 'O' ||
+                            p.getBoard()[y][x-1] == 'O' && p.getBoard()[y][x-2] == 'O') {
+                        if (p.getBoard()[y-1][x-1] == 'O' && p.getBoard()[y+1][x-1] == 'O' ||
+                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y+1][x+1] == 'O') {
+                            System.out.println(" Starfish found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
+                    // now we know it doesn't start in the middle row
+                    // starting from the top or bottom
+                    else if(p.getBoard()[y-1][x] == 'O' && p.getBoard()[y-2][x] == 'O' ||
+                            p.getBoard()[y+1][x] == 'O' && p.getBoard()[y+2][x] == 'O') {
+                        if (p.getBoard()[y+1][x-1] == 'O' && p.getBoard()[y+1][x+1] == 'O' ||
+                                p.getBoard()[y-1][x+1] == 'O' && p.getBoard()[y-1][x-1] == 'O') {
+                            System.out.println(" Starfish found! +5 Bonus Points");
+                            p.setPoints(p.getPoints() + 5);
+                        }
+                    }
+                }
+            }
+        } else {
+            p.setBoard(y, x, 'x');
+            System.out.println("\nNo luck!");
+        }
+
+        // return -1 if tile was not a MegaGuess tile
+        return -1;
     }
 }
