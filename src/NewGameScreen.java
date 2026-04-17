@@ -22,14 +22,14 @@ public class NewGameScreen {
         GameObjects objects = new GameObjects();
 
         // setup main panel
-        JPanel mainPanel = new JPanel(new GridLayout(3,1));
+        JPanel mainPanel = new JPanel(new GridLayout(3,0));
 
         // initial message to players
         JTextArea plot = new JTextArea("The explorer starts on their quest to rescue " +
                 "the last remaining underwater creatures. The hunter knows the explorer " +
                 "will lead them to the best place to hunt and decides to follow discretely... ");
 
-        plot.setFont(new Font("sans", Font.ITALIC, 20));
+        plot.setFont(new Font(null, Font.ITALIC, 20));
         plot.setWrapStyleWord(true);
         plot.setLineWrap(true);
         plot.setEditable(false);

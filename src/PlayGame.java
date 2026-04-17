@@ -55,7 +55,11 @@ public class PlayGame {
                 System.exit(0);
             System.out.println(getClass() + ": quit game");
         });
-        returnToMenu.addActionListener(l -> System.out.println("return to menu"));
+        returnToMenu.addActionListener(l -> {
+            if (JOptionPane.showConfirmDialog(frame, "Return to menu?\nAny unsaved progress will be lost!") == 0)
+                new MainMenu(frame);
+            System.out.println("return to menu");
+        });
         getHint.addActionListener(l -> System.out.println(player[turn].getName() + ": request hint"));
 
         frame.setJMenuBar(menuBar);
@@ -104,6 +108,8 @@ public class PlayGame {
         // compute what happens when player makes a guess by pressing a button
         btn.addActionListener(l -> {
             System.out.println("Clicked button: " + x +", "+ y);    // TURN INTO SYSTEM MESSAGE
+            checkStatus(player, turn);  // REMOVE THIS LATER
+
             megaGuess = guess(player[turn], -1, 0, x, y);
             if (megaGuess != -1) {
                 for (int z = 0; z < player[turn].length; z++) {
@@ -111,13 +117,14 @@ public class PlayGame {
                 }
             }
 
-            checkStatus(player, turn);
+            // only change to other player if game hasnt ended
+            if (!checkStatus(player, turn)) {
+                // flip player turn
+                turn = (turn - 1) * -1;
 
-            // flip player turn
-            turn = (turn - 1) * -1;
-
-            frame.getContentPane().removeAll();
-            startUI();
+                frame.getContentPane().removeAll();
+                startUI();
+            }
         });
         return btn;
     }
@@ -128,13 +135,10 @@ public class PlayGame {
      * @return stats panel
      */
     private JPanel getStats(int turn) {
-        JPanel stats = new JPanel(new GridLayout(0, 4));
+        JPanel stats = new JPanel(new GridLayout(0, 3));
 
         // initialise player stats fields
-        JTextField name = new JTextField(), points = new JTextField(), health = new JTextField();
-        name.setEditable(false);
-        points.setEditable(false);
-        health.setEditable(false);
+        JTextField name = textBox(), points = textBox(), health = textBox();
 
         // put player details in the boxes
         name.setText(player[turn].getName());
@@ -145,78 +149,66 @@ public class PlayGame {
         stats.add(points);
         stats.add(health);
 
+        // set size of stats panel
         stats.setSize(new Dimension(frame.getWidth(), frame.getHeight() / 10));
 
         return stats;
     }
 
-    private boolean checkStatus(Player[] p, int turn) {
+    /**
+     * creates a styled text box
+     * @return textField
+     */
+    private JTextField textBox() {
+        JTextField textField = new JTextField();
+        textField.setEnabled(false);
+        textField.setFont(new Font(null, Font.PLAIN, 20));
+        textField.setDisabledTextColor(Config.TEXT_COLOUR);
+        textField.setHorizontalAlignment(SwingConstants.CENTER);
+        return textField;
+    }
+
+    /**
+     * checks to see if the player has found all creatures/died
+     * then shows end screen
+     * @param players player array
+     * @param turn current player
+     * @return true if game has ended
+     */
+    private boolean checkStatus(Player[] players, int turn) {
         // check if the player has died
-        if (p[turn].getHealth() <= 0) {
-            System.out.println("You died :(");
-            if (p[turn].isExplorer)
-                System.out.println("""
-                        You failed to save the rest of the creatures from the \33[31;1mEvil Hunter\33[0m
-                        who continued on and managed to hunt down
-                        all the creatures and wins by default.""");
-            else
-                System.out.println("""
-                        You failed to hunt all the creatures down.
-                        The \33[32;1mMystical Explorer\33[0m went on to save the rest
-                        of the creatures and wins by default.""");
-
-            System.out.println("\n+ -------");
-            for (Player player : p) {
-                System.out.println("| " + player.getName());
-                System.out.println("| Points: " + player.getPoints());
-                System.out.println("| Health: " + player.getHealth());
-                System.out.println("+ -------");
-            }
-
-            System.out.println("\nENTER to exit");
-            new MainMenu(frame);
+        if (players[turn].getHealth() <= 0) {
+            new EndScreen(frame, 0, players, turn);
+            return true;
         }
 
         // check if player has found all the creatures
         int hiddenCount = 0;  // number of creature parts in hidden board
-        int visableCount = 0;  // number of creature parts in visable board
+        int visibleCount = 0;  // number of creature parts in visible board
 
-        for (int i = 0; i < p[turn].height; i++) {
-            for (int j = 0; j < p[turn].length; j++) {
-                if (p[turn].getHidden_board()[i][j] == Config.FISH_TILE || p[turn].getHidden_board()[i][j] == Config.CRAB_TILE ||
-                        p[turn].getHidden_board()[i][j] == Config.SNAKE_TILE || p[turn].getHidden_board()[i][j] == Config.STARFISH_TILE)
+        // count number of creature parts on the board
+        // count number of found creature parts
+        for (int i = 0; i < players[turn].height; i++) {
+            for (int j = 0; j < players[turn].length; j++) {
+                if (players[turn].getHidden_board()[i][j] == Config.FISH_TILE || players[turn].getHidden_board()[i][j] == Config.CRAB_TILE ||
+                        players[turn].getHidden_board()[i][j] == Config.SNAKE_TILE || players[turn].getHidden_board()[i][j] == Config.STARFISH_TILE)
                     hiddenCount++;
-                if (p[turn].getBoard()[i][j] == Config.FISH_TILE || p[turn].getBoard()[i][j] == Config.CRAB_TILE ||
-                        p[turn].getBoard()[i][j] == Config.SNAKE_TILE || p[turn].getBoard()[i][j] == Config.STARFISH_TILE)
-                    visableCount++;
+                if (players[turn].getBoard()[i][j] == Config.FISH_TILE || players[turn].getBoard()[i][j] == Config.CRAB_TILE ||
+                        players[turn].getBoard()[i][j] == Config.SNAKE_TILE || players[turn].getBoard()[i][j] == Config.STARFISH_TILE)
+                    visibleCount++;
             }
         }
+
+        // DEBUGGING STUFF
+        System.out.println(hiddenCount + " " + visibleCount);
 
         // check to see if all the creatures have been found
-        if (hiddenCount == visableCount) {
-            if (p[turn].isExplorer)
-                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        As the \33[32;1mMystical Explorer\33[0m you managed to save all the creatures from the hunter.
-                        """);
-            else
-                System.out.println("\n" + p[turn].getName() + " is the winner!\n" + """
-                        As the \33[31;1mEvil Hunter\33[0m you have managed to hunt all the creatures to extinction.
-                        """);
-
-            System.out.println("\n+ -------");
-            for (Player player : p) {
-                System.out.println("| " + player.getName());
-                System.out.println("| Points: " + player.getPoints());
-                System.out.println("| Health: " + player.getHealth());
-                System.out.println("+ -------");
-            }
-
-            System.out.println("\nPress ENTER to exit");
-
-            new MainMenu(frame);
+        if (hiddenCount == visibleCount) {
+            new EndScreen(frame, 1, players, turn);
+            return true;
         }
 
-        return p[turn].getHealth() <= 25;
+        return false;
     }
 
     /**

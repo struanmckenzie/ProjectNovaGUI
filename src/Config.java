@@ -1,3 +1,5 @@
+import java.awt.*;
+
 public class Config {
     static final int BOARD_SIZE = 16;
 
@@ -17,5 +19,6 @@ public class Config {
     static final int CREATURE_PART_POINTS = 5;
     static final int CREATURE_FOUND_POINTS = 10;
 
+    static final Color TEXT_COLOUR = Color.BLACK;
 
 }
